@@ -1,21 +1,36 @@
-# TanStack Start + shadcn/ui
+# makarima.dev
 
-This is a template for a new TanStack Start project with React, TypeScript, and shadcn/ui.
+TanStack Start SSR app configured for Cloudflare Workers deploys.
 
-## Adding components
-
-To add components to your app, run the following command:
+## Local dev
 
 ```bash
-npx shadcn@latest add button
+bun install
+bun run dev
 ```
 
-This will place the ui components in the `components` directory.
+The Vite dev server runs on `http://localhost:3000`.
 
-## Using components
+## Cloudflare deploy
 
-To use the components in your app, import them as follows:
+1. Install Wrangler auth locally:
 
-```tsx
-import { Button } from "@/components/ui/button";
+```bash
+npx wrangler login
 ```
+
+Or set `CLOUDFLARE_API_TOKEN` for non-interactive deploys.
+
+2. Verify auth:
+
+```bash
+npx wrangler whoami
+```
+
+3. Build and deploy:
+
+```bash
+bun run deploy
+```
+
+The Worker entrypoint is defined in `wrangler.jsonc` and points at `@tanstack/react-start/server-entry`.
