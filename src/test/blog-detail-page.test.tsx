@@ -10,10 +10,6 @@ describe("BlogDetailPage", () => {
   test("renders blog detail content", () => {
     const entry = blogs[0]
 
-    if (!entry) {
-      throw new Error("Expected a blog entry in mock data")
-    }
-
     renderWithRouter(<BlogDetailPage entry={entry} />)
 
     expect(
@@ -40,16 +36,12 @@ describe("BlogDetailPage", () => {
       throw new Error("Expected code figure for blog detail")
     }
 
-    expect(codeBlock.textContent?.includes("type ContentBlock =")).toBe(true)
+    expect(codeBlock.textContent.includes("type ContentBlock =")).toBe(true)
     expect(screen.getByRole("button", { name: /Copy code:/i })).toBeTruthy()
   })
 
   test("opens an image preview from rich content", () => {
     const entry = blogs[0]
-
-    if (!entry) {
-      throw new Error("Expected a blog entry in mock data")
-    }
 
     renderWithRouter(<BlogDetailPage entry={entry} />)
 
@@ -60,15 +52,13 @@ describe("BlogDetailPage", () => {
         name: "Editorial layout sketch with cards and code columns",
       })
     ).toBeTruthy()
-    expect(screen.getByRole("button", { name: "Close image preview" })).toBeTruthy()
+    expect(
+      screen.getByRole("button", { name: "Close image preview" })
+    ).toBeTruthy()
   })
 
   test("copies highlighted blog code", async () => {
     const entry = blogs[0]
-
-    if (!entry) {
-      throw new Error("Expected a blog entry in mock data")
-    }
 
     renderWithRouter(<BlogDetailPage entry={entry} />)
 

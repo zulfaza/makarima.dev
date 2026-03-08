@@ -23,25 +23,33 @@ class MatchMediaChangeEvent extends Event implements MediaQueryListEvent {
   }
 }
 
-function addMediaQueryListener(listener: EventListenerOrEventListenerObject | null) {
+function addMediaQueryListener(
+  listener: EventListenerOrEventListenerObject | null
+) {
   if (listener) {
     mediaQueryListeners.add(listener)
   }
 }
 
-function removeMediaQueryListener(listener: EventListenerOrEventListenerObject | null) {
+function removeMediaQueryListener(
+  listener: EventListenerOrEventListenerObject | null
+) {
   if (listener) {
     mediaQueryListeners.delete(listener)
   }
 }
 
-function addLegacyMediaQueryListener(listener: LegacyMediaQueryListener | null) {
+function addLegacyMediaQueryListener(
+  listener: LegacyMediaQueryListener | null
+) {
   if (listener) {
     legacyMediaQueryListeners.add(listener)
   }
 }
 
-function removeLegacyMediaQueryListener(listener: LegacyMediaQueryListener | null) {
+function removeLegacyMediaQueryListener(
+  listener: LegacyMediaQueryListener | null
+) {
   if (listener) {
     legacyMediaQueryListeners.delete(listener)
   }

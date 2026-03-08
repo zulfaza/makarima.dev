@@ -1,12 +1,17 @@
 import { createFileRoute, Link } from "@tanstack/react-router"
 
 import {
+  SiteFrame,
+  siteBadgeClassName,
+  siteMetaClassName,
+} from "@/components/site-frame"
+import { Badge } from "@/components/ui/badge"
+import {
   blogs,
   formatBlogDate,
   formatProjectStatus,
   projects,
 } from "@/content/site"
-import { SiteFrame, siteMetaClassName } from "@/components/site-frame"
 
 export const Route = createFileRoute("/")({ component: HomePage })
 
@@ -69,11 +74,16 @@ export function HomePage() {
                     </p>
                     <ul
                       aria-label={`${entry.title} tags`}
-                      className="flex flex-wrap gap-x-3 gap-y-1"
+                      className="flex flex-wrap gap-2"
                     >
                       {entry.tags.map((tag) => (
-                        <li key={tag} className={siteMetaClassName}>
-                          {tag}
+                        <li key={tag}>
+                          <Badge
+                            variant="outline"
+                            className={siteBadgeClassName}
+                          >
+                            {tag}
+                          </Badge>
                         </li>
                       ))}
                     </ul>
@@ -117,11 +127,16 @@ export function HomePage() {
                     </p>
                     <ul
                       aria-label={`${project.name} stack`}
-                      className="flex flex-wrap gap-x-3 gap-y-1"
+                      className="flex flex-wrap gap-2"
                     >
                       {project.stack.map((item) => (
-                        <li key={item} className={siteMetaClassName}>
-                          {item}
+                        <li key={item}>
+                          <Badge
+                            variant="outline"
+                            className={siteBadgeClassName}
+                          >
+                            {item}
+                          </Badge>
                         </li>
                       ))}
                     </ul>

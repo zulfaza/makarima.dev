@@ -7,12 +7,8 @@ describe("HomePage", () => {
   test("renders home sections and detail links", () => {
     renderWithRouter(<HomePage />)
 
-    expect(
-      screen.getByRole("heading", { name: "Blogs" })
-    ).toBeTruthy()
-    expect(
-      screen.getByRole("heading", { name: "Projects" })
-    ).toBeTruthy()
+    expect(screen.getByRole("heading", { name: "Blogs" })).toBeTruthy()
+    expect(screen.getByRole("heading", { name: "Projects" })).toBeTruthy()
 
     expect(
       screen.getByRole("heading", { name: "Building With Calm Constraints" })

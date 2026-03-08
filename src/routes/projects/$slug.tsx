@@ -2,11 +2,14 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router"
 
 import { DetailContent } from "@/components/detail-content"
 import {
-  type ProjectEntry,
-  formatProjectStatus,
-  getProjectBySlug,
-} from "@/content/site"
-import { SiteFrame, siteMetaClassName } from "@/components/site-frame"
+  SiteFrame,
+  siteBadgeClassName,
+  siteMetaClassName,
+} from "@/components/site-frame"
+import { Badge } from "@/components/ui/badge"
+import { formatProjectStatus, getProjectBySlug } from "@/content/site"
+
+import type { ProjectEntry } from "@/content/site"
 
 export const Route = createFileRoute("/projects/$slug")({
   loader: ({ params }) => loadProjectEntry(params.slug),
@@ -66,11 +69,13 @@ export function ProjectDetailPage({ entry }: { entry: ProjectEntry }) {
           </div>
           <ul
             aria-label={`${entry.name} stack`}
-            className="flex flex-wrap gap-x-3 gap-y-1"
+            className="flex flex-wrap gap-2"
           >
             {entry.stack.map((item) => (
-              <li key={item} className={siteMetaClassName}>
-                {item}
+              <li key={item}>
+                <Badge variant="outline" className={siteBadgeClassName}>
+                  {item}
+                </Badge>
               </li>
             ))}
           </ul>

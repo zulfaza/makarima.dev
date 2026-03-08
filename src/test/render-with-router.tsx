@@ -1,8 +1,10 @@
 import { RouterContextProvider } from "@tanstack/react-router"
-import { render, type RenderOptions } from "@testing-library/react"
-import type { ReactElement } from "react"
+import { render } from "@testing-library/react"
 
 import { getRouter } from "@/router"
+
+import type { RenderOptions } from "@testing-library/react"
+import type { ReactElement } from "react"
 
 export function renderWithRouter(
   ui: ReactElement,

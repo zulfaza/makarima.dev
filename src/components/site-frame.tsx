@@ -1,8 +1,10 @@
-import { buttonVariants } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { buttonVariants } from "@/components/ui/button"
 import { socials } from "@/content/site"
 
 export const siteMetaClassName = "text-xs text-muted-foreground"
+export const siteBadgeClassName =
+  "h-auto border-border/80 px-2 py-1 text-[11px] font-normal text-muted-foreground"
 
 export function SiteFrame({ children }: { children: React.ReactNode }) {
   return (
@@ -11,7 +13,7 @@ export function SiteFrame({ children }: { children: React.ReactNode }) {
         <div className="flex flex-1 flex-col">{children}</div>
         <footer
           id="socials"
-          className="flex flex-col gap-3 border-t border-b border-border/80 px-5 py-4 sm:px-8 sm:flex-row sm:items-center sm:justify-between"
+          className="flex flex-col gap-3 border-t border-b border-border/80 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-8"
         >
           <p className="text-xs text-muted-foreground">
             Copyright © 2026 makarima.dev

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 
 import { Button } from "@/components/ui/button"
+
 import type { CodeLanguage, ContentBlock } from "@/content/site"
 
 type ImageBlock = Extract<ContentBlock, { readonly kind: "image" }>
@@ -39,7 +40,11 @@ const tokenClassNameByKind: Record<CodeTokenKind, string> = {
   variable: "text-rose-700 dark:text-rose-300",
 }
 
-export function DetailContent({ blocks }: { blocks: readonly ContentBlock[] }) {
+export function DetailContent({
+  blocks,
+}: {
+  blocks: ReadonlyArray<ContentBlock>
+}) {
   const [previewImage, setPreviewImage] = useState<ImageBlock | null>(null)
 
   useEffect(() => {
@@ -177,11 +182,6 @@ function CodeSnippet({ block }: { block: CodeBlock }) {
   }, [copyState])
 
   async function handleCopyCode() {
-    if (!navigator.clipboard) {
-      setCopyState("failed")
-      return
-    }
-
     try {
       await navigator.clipboard.writeText(block.code)
       setCopyState("copied")
@@ -257,21 +257,17 @@ function CodeSnippet({ block }: { block: CodeBlock }) {
 function tokenizeCodeLine(
   language: CodeLanguage,
   line: string
-): readonly CodeToken[] {
+): ReadonlyArray<CodeToken> {
   if (line.length === 0) {
     return [{ kind: "plain", content: " " }]
   }
 
   const pattern = highlightPatternByLanguage[language]
-  const tokens: CodeToken[] = []
+  const tokens: Array<CodeToken> = []
   let currentIndex = 0
 
   for (const match of line.matchAll(pattern)) {
     const matchedToken = match[0]
-
-    if (matchedToken === undefined || match.index === undefined) {
-      continue
-    }
 
     if (match.index > currentIndex) {
       tokens.push({

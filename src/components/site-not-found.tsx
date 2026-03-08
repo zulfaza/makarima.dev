@@ -1,5 +1,5 @@
-import { buttonVariants } from "@/components/ui/button"
 import { SiteFrame } from "@/components/site-frame"
+import { buttonVariants } from "@/components/ui/button"
 
 export function SiteNotFound() {
   return (
@@ -14,7 +14,10 @@ export function SiteNotFound() {
             The page you requested does not exist or has moved.
           </p>
           <div>
-            <a className={buttonVariants({ size: "sm", variant: "outline" })} href="/">
+            <a
+              className={buttonVariants({ size: "sm", variant: "outline" })}
+              href="/"
+            >
               Back to home
             </a>
           </div>

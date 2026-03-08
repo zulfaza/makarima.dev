@@ -9,10 +9,6 @@ describe("ProjectDetailPage", () => {
   test("renders project detail content", () => {
     const entry = projects[0]
 
-    if (!entry) {
-      throw new Error("Expected a project entry in mock data")
-    }
-
     renderWithRouter(<ProjectDetailPage entry={entry} />)
 
     expect(
@@ -41,17 +37,13 @@ describe("ProjectDetailPage", () => {
     }
 
     expect(
-      codeBlock.textContent?.includes("readonly body: readonly ContentBlock[]")
+      codeBlock.textContent.includes("readonly body: readonly ContentBlock[]")
     ).toBe(true)
     expect(screen.getByRole("button", { name: /Copy code:/i })).toBeTruthy()
   })
 
   test("opens project image preview from detail content", () => {
     const entry = projects[0]
-
-    if (!entry) {
-      throw new Error("Expected a project entry in mock data")
-    }
 
     renderWithRouter(<ProjectDetailPage entry={entry} />)
 

@@ -1,0 +1,50 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "env": {
+    "builtin": true,
+    "browser": true
+  },
+  "ignorePatterns": [
+    ".output/**",
+    "dist/**",
+    "dist-ssr/**",
+    ".tanstack/**",
+    ".wrangler/**",
+    "src/routeTree.gen.ts"
+  ],
+  "overrides": [
+    {
+      "files": ["vite.config.ts", "vitest.config.ts"],
+      "env": {
+        "node": true
+      }
+    },
+    {
+      "files": ["src/test/**/*.ts", "src/test/**/*.tsx", "vitest.config.ts"],
+      "env": {
+        "vitest": true
+      }
+    }
+  ],
+  "rules": {
+    "sort-imports": "off",
+    "import/first": "error",
+    "import/no-commonjs": "error",
+    "import/no-duplicates": "error",
+    "typescript/array-type": [
+      "error",
+      {
+        "default": "generic",
+        "readonly": "generic"
+      }
+    ],
+    "typescript/consistent-type-imports": [
+      "error",
+      {
+        "prefer": "type-imports"
+      }
+    ],
+    "typescript/no-unnecessary-condition": "error",
+    "typescript/no-unnecessary-type-assertion": "error"
+  }
+}

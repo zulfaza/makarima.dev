@@ -72,7 +72,10 @@ export function getEffectiveTheme(): EffectiveTheme {
   )
 }
 
-export function applyTheme(theme: EffectiveTheme, root: Element = document.documentElement) {
+export function applyTheme(
+  theme: EffectiveTheme,
+  root: Element = document.documentElement
+) {
   root.classList.toggle(darkClassName, theme === "dark")
 }
 
@@ -83,7 +86,10 @@ export function setThemePreference(preference: ThemePreference) {
 
   writeThemePreferenceToStorage(preference, window.localStorage)
   applyTheme(
-    resolveThemePreference(preference, window.matchMedia(darkModeMediaQuery).matches)
+    resolveThemePreference(
+      preference,
+      window.matchMedia(darkModeMediaQuery).matches
+    )
   )
   window.dispatchEvent(new Event(themeChangeEventName))
 }

@@ -1,8 +1,15 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router"
 
 import { DetailContent } from "@/components/detail-content"
-import { type BlogEntry, formatBlogDate, getBlogBySlug } from "@/content/site"
-import { SiteFrame, siteMetaClassName } from "@/components/site-frame"
+import {
+  SiteFrame,
+  siteBadgeClassName,
+  siteMetaClassName,
+} from "@/components/site-frame"
+import { Badge } from "@/components/ui/badge"
+import { formatBlogDate, getBlogBySlug } from "@/content/site"
+
+import type { BlogEntry } from "@/content/site"
 
 export const Route = createFileRoute("/blogs/$slug")({
   loader: ({ params }) => loadBlogEntry(params.slug),
@@ -55,18 +62,19 @@ export function BlogDetailPage({ entry }: { entry: BlogEntry }) {
               {entry.title}
             </h1>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
             <p className={siteMetaClassName}>
               {formatBlogDate(entry.publishedAt)}
             </p>
-            •
             <ul
               aria-label={`${entry.title} tags`}
-              className="flex flex-wrap gap-x-3 gap-y-1"
+              className="flex flex-wrap gap-2"
             >
               {entry.tags.map((tag) => (
-                <li key={tag} className={siteMetaClassName}>
-                  {tag}
+                <li key={tag}>
+                  <Badge variant="outline" className={siteBadgeClassName}>
+                    {tag}
+                  </Badge>
                 </li>
               ))}
             </ul>

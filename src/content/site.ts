@@ -9,8 +9,8 @@ export type BlogEntry = {
   readonly title: string
   readonly summary: string
   readonly publishedAt: string
-  readonly tags: readonly string[]
-  readonly body: readonly ContentBlock[]
+  readonly tags: ReadonlyArray<string>
+  readonly body: ReadonlyArray<ContentBlock>
 }
 
 export type ProjectStatus = "active" | "archived" | "draft"
@@ -20,9 +20,9 @@ export type ProjectEntry = {
   readonly name: string
   readonly summary: string
   readonly year: number
-  readonly stack: readonly string[]
+  readonly stack: ReadonlyArray<string>
   readonly status: ProjectStatus
-  readonly body: readonly ContentBlock[]
+  readonly body: ReadonlyArray<ContentBlock>
 }
 
 export type CodeLanguage = "bash" | "json" | "ts" | "tsx"
@@ -59,7 +59,7 @@ function paragraph(content: string): ContentBlock {
   return { kind: "paragraph", content }
 }
 
-export const blogs: readonly BlogEntry[] = [
+export const blogs: ReadonlyArray<BlogEntry> = [
   {
     slug: "building-with-calm-constraints",
     title: "Building With Calm Constraints",
@@ -68,7 +68,9 @@ export const blogs: readonly BlogEntry[] = [
     publishedAt: "2026-02-14",
     tags: ["typescript", "workflow", "notes"],
     body: [
-      paragraph("Personal projects last longer when the constraints stay visible."),
+      paragraph(
+        "Personal projects last longer when the constraints stay visible."
+      ),
       {
         kind: "image",
         src: "/images/content-preview.svg",
@@ -87,7 +89,8 @@ export const blogs: readonly BlogEntry[] = [
   | { kind: "paragraph"; content: string }
   | { kind: "image"; src: string; alt: string }
   | { kind: "code"; language: "tsx"; code: string }`,
-        caption: "The route can stay simple once the content shape is explicit.",
+        caption:
+          "The route can stay simple once the content shape is explicit.",
       },
       paragraph(
         "That usually means writing simple data structures first, then letting the interface grow from the information instead of the other way around."
@@ -121,7 +124,9 @@ export const blogs: readonly BlogEntry[] = [
     publishedAt: "2025-12-18",
     tags: ["content", "markdown", "planning"],
     body: [
-      paragraph("Markdown stays attractive because it is boring in the best way."),
+      paragraph(
+        "Markdown stays attractive because it is boring in the best way."
+      ),
       paragraph(
         "It travels well across tools, diff reviews stay readable, and the authoring format does not force a database decision too early."
       ),
@@ -132,7 +137,7 @@ export const blogs: readonly BlogEntry[] = [
   },
 ] as const
 
-export const projects: readonly ProjectEntry[] = [
+export const projects: ReadonlyArray<ProjectEntry> = [
   {
     slug: "makarima-dev",
     name: "makarima.dev",
@@ -162,7 +167,8 @@ export const projects: readonly ProjectEntry[] = [
   readonly name: string
   readonly body: readonly ContentBlock[]
 }`,
-        caption: "The entry type stays narrow while the renderer handles variants.",
+        caption:
+          "The entry type stays narrow while the renderer handles variants.",
       },
       paragraph(
         "The main constraint is to keep the UI direct and editable without introducing CMS overhead."
@@ -198,7 +204,9 @@ export const projects: readonly ProjectEntry[] = [
     stack: ["Bun", "Cloudflare", "CLI"],
     status: "archived",
     body: [
-      paragraph("Tiny Ops started as a practical wrapper around repetitive release tasks."),
+      paragraph(
+        "Tiny Ops started as a practical wrapper around repetitive release tasks."
+      ),
       paragraph(
         "It bundled a few deploy, verification, and clean-up commands that were being copied between repositories too often."
       ),
@@ -209,7 +217,7 @@ export const projects: readonly ProjectEntry[] = [
   },
 ] as const
 
-export const socials: readonly SocialLink[] = [
+export const socials: ReadonlyArray<SocialLink> = [
   {
     kind: "github",
     label: "GitHub",

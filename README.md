@@ -11,6 +11,21 @@ bun run dev
 
 The Vite dev server runs on `http://localhost:3000`.
 
+## Quality checks
+
+```bash
+bun run lint
+bun run format:check
+bun run typecheck
+bun run test
+```
+
+Or run the full suite with:
+
+```bash
+bun run check
+```
+
 ## Cloudflare deploy
 
 1. Install Wrangler auth locally:
