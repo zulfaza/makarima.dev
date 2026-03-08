@@ -2,6 +2,8 @@ import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router"
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools"
 import { TanStackDevtools } from "@tanstack/react-devtools"
 
+import { themeBootScript } from "@/lib/theme"
+
 import appCss from "../styles.css?url"
 
 export const Route = createRootRoute({
@@ -15,7 +17,12 @@ export const Route = createRootRoute({
         content: "width=device-width, initial-scale=1",
       },
       {
-        title: "TanStack Start Starter",
+        title: "makarima.dev",
+      },
+      {
+        name: "description",
+        content:
+          "Personal site with notes, projects, and links kept close to the codebase.",
       },
     ],
     links: [
@@ -30,8 +37,9 @@ export const Route = createRootRoute({
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
+        <script>{themeBootScript}</script>
         <HeadContent />
       </head>
       <body>
