@@ -1,0 +1,1 @@
+- do not run build command if not explicitly asked to do so
