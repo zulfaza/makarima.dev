@@ -1,4 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react"
+import { hydrateRoot } from "react-dom/client"
+import { renderToString } from "react-dom/server"
 
 import { ThemeToggle } from "@/components/theme-toggle"
 import { themeStorageKey } from "@/lib/theme"
@@ -49,5 +51,17 @@ describe("ThemeToggle", () => {
     expect(
       screen.getByRole("button", { name: "Switch to light mode" })
     ).toBeTruthy()
+  })
+
+  test("hydrates to the effective theme before the first click", async () => {
+    window.localStorage.setItem(themeStorageKey, "dark")
+
+    const container = document.createElement("div")
+    container.innerHTML = renderToString(<ThemeToggle />)
+    document.body.append(container)
+
+    hydrateRoot(container, <ThemeToggle />)
+
+    await screen.findByRole("button", { name: "Switch to light mode" })
   })
 })

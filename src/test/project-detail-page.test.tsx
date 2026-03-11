@@ -1,19 +1,22 @@
 import { isNotFound } from "@tanstack/react-router"
 import { fireEvent, screen } from "@testing-library/react"
 
-import { projects } from "@/content/site"
+import { loadProjects } from "@/content/site"
 import { ProjectDetailPage, loadProjectEntry } from "@/routes/projects/$slug"
 import { renderWithRouter } from "@/test/render-with-router"
 
 describe("ProjectDetailPage", () => {
   test("renders project detail content", () => {
-    const entry = projects[0]
+    const entry = loadProjects()[0]
 
     renderWithRouter(<ProjectDetailPage entry={entry} />)
 
-    expect(
-      screen.getByRole("heading", { level: 1, name: entry.name })
-    ).toBeTruthy()
+    const pageTitle = screen.getByRole("heading", {
+      level: 1,
+      name: entry.name,
+    })
+
+    expect(pageTitle).toBeTruthy()
     expect(screen.getByText("2026")).toBeTruthy()
     expect(screen.getByText("Active")).toBeTruthy()
     expect(screen.getByText("TanStack Start")).toBeTruthy()
@@ -40,10 +43,11 @@ describe("ProjectDetailPage", () => {
       codeBlock.textContent.includes("readonly body: readonly ContentBlock[]")
     ).toBe(true)
     expect(screen.getByRole("button", { name: /Copy code:/i })).toBeTruthy()
+    expect(screen.queryByRole("heading", { name: "Pixel snake" })).toBeNull()
   })
 
   test("opens project image preview from detail content", () => {
-    const entry = projects[0]
+    const entry = loadProjects()[0]
 
     renderWithRouter(<ProjectDetailPage entry={entry} />)
 
@@ -56,11 +60,11 @@ describe("ProjectDetailPage", () => {
     ).toBeTruthy()
   })
 
-  test("throws a TanStack not-found for missing slugs", () => {
+  test("throws a TanStack not-found for missing slugs", async () => {
     expect.assertions(1)
 
     try {
-      loadProjectEntry("missing-project")
+      await loadProjectEntry("missing-project")
     } catch (error) {
       expect(isNotFound(error)).toBe(true)
     }

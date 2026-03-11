@@ -1,10 +1,11 @@
-import { render, screen } from "@testing-library/react"
+import { screen } from "@testing-library/react"
 
 import { SiteNotFound } from "@/components/site-not-found"
+import { renderWithRouter } from "@/test/render-with-router"
 
 describe("SiteNotFound", () => {
   test("renders the custom 404 page", () => {
-    render(<SiteNotFound />)
+    renderWithRouter(<SiteNotFound />)
 
     expect(
       screen.getByRole("heading", { level: 1, name: "Page not found" })

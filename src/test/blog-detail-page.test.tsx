@@ -1,20 +1,23 @@
 import { isNotFound } from "@tanstack/react-router"
 import { fireEvent, screen } from "@testing-library/react"
 
-import { blogs } from "@/content/site"
+import { loadBlogs } from "@/content/site"
 import { BlogDetailPage, loadBlogEntry } from "@/routes/blogs/$slug"
 import { renderWithRouter } from "@/test/render-with-router"
 import { getClipboardText } from "@/test/setup"
 
 describe("BlogDetailPage", () => {
   test("renders blog detail content", () => {
-    const entry = blogs[0]
+    const entry = loadBlogs()[0]
 
     renderWithRouter(<BlogDetailPage entry={entry} />)
 
-    expect(
-      screen.getByRole("heading", { level: 1, name: entry.title })
-    ).toBeTruthy()
+    const pageTitle = screen.getByRole("heading", {
+      level: 1,
+      name: entry.title,
+    })
+
+    expect(pageTitle).toBeTruthy()
     expect(screen.getByText("Feb 14, 2026")).toBeTruthy()
     expect(screen.getByText("typescript")).toBeTruthy()
     expect(
@@ -41,7 +44,7 @@ describe("BlogDetailPage", () => {
   })
 
   test("opens an image preview from rich content", () => {
-    const entry = blogs[0]
+    const entry = loadBlogs()[0]
 
     renderWithRouter(<BlogDetailPage entry={entry} />)
 
@@ -58,21 +61,23 @@ describe("BlogDetailPage", () => {
   })
 
   test("copies highlighted blog code", async () => {
-    const entry = blogs[0]
+    const entry = loadBlogs()[0]
 
     renderWithRouter(<BlogDetailPage entry={entry} />)
 
     fireEvent.click(screen.getByRole("button", { name: /Copy code:/i }))
 
-    expect(await screen.findByText("Copied")).toBeTruthy()
+    expect(
+      await screen.findByRole("button", { name: /Copied code:/i })
+    ).toBeTruthy()
     expect(getClipboardText()).toContain("type ContentBlock =")
   })
 
-  test("throws a TanStack not-found for missing slugs", () => {
+  test("throws a TanStack not-found for missing slugs", async () => {
     expect.assertions(1)
 
     try {
-      loadBlogEntry("missing-blog")
+      await loadBlogEntry("missing-blog")
     } catch (error) {
       expect(isNotFound(error)).toBe(true)
     }
