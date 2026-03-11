@@ -6,6 +6,8 @@ import viteReact from "@vitejs/plugin-react"
 import { defineConfig } from "vite"
 import viteTsConfigPaths from "vite-tsconfig-paths"
 
+import { getSitemapPages, sitemapHost } from "./src/lib/sitemap-pages"
+
 const config = defineConfig({
   server: {
     port: 3000,
@@ -17,7 +19,12 @@ const config = defineConfig({
       projects: ["./tsconfig.json"],
     }),
     cloudflare({ viteEnvironment: { name: "ssr" } }),
-    tanstackStart(),
+    tanstackStart({
+      pages: getSitemapPages(),
+      sitemap: {
+        host: sitemapHost,
+      },
+    }),
     viteReact(),
   ],
 })

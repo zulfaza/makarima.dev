@@ -49,3 +49,4 @@ bun run deploy
 ```
 
 The Worker entrypoint is defined in `wrangler.jsonc` and points at `@tanstack/react-start/server-entry`.
+`bun run build` and `bun run deploy` also emit `dist/client/sitemap.xml` from the markdown content in `src/content`.
