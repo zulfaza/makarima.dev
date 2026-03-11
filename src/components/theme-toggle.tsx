@@ -18,6 +18,7 @@ export function ThemeToggle() {
     <Button
       aria-label={label}
       onClick={() => {
+        console.log("here")
         setThemePreference(isDark ? "light" : "dark")
       }}
       size="icon-sm"

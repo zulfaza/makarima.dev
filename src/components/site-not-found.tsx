@@ -1,3 +1,5 @@
+import { Link } from "@tanstack/react-router"
+
 import { SiteFrame } from "@/components/site-frame"
 import { buttonVariants } from "@/components/ui/button"
 
@@ -14,12 +16,12 @@ export function SiteNotFound() {
             The page you requested does not exist or has moved.
           </p>
           <div>
-            <a
+            <Link
               className={buttonVariants({ size: "sm", variant: "outline" })}
-              href="/"
+              to="/"
             >
               Back to home
-            </a>
+            </Link>
           </div>
         </div>
       </section>
