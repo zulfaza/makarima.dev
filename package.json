@@ -7,17 +7,17 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "bun run --filter web dev",
-    "build": "bun run --filter web build",
-    "deploy": "bun run --filter web deploy",
-    "preview": "bun run --filter web preview",
-    "test": "bun run --filter web test",
-    "lint": "bun run --filter web lint",
-    "lint:fix": "bun run --filter web lint:fix",
-    "format": "bun run --filter web format",
-    "format:check": "bun run --filter web format:check",
-    "typecheck": "bun run --filter web typecheck",
-    "check": "bun run --filter web check"
+    "dev": "bun run --filter @makarima/web dev",
+    "build": "bun run --filter @makarima/web build",
+    "deploy": "bun run --filter @makarima/web deploy",
+    "preview": "bun run --filter @makarima/web preview",
+    "test": "bun run --filter @makarima/web test",
+    "lint": "bun run --filter @makarima/web lint",
+    "lint:fix": "bun run --filter @makarima/web lint:fix",
+    "format": "bun run --filter @makarima/web format",
+    "format:check": "bun run --filter @makarima/web format:check",
+    "typecheck": "bun run --filter @makarima/web typecheck",
+    "check": "bun run --filter @makarima/web check"
   },
   "devDependencies": {
     "typescript": "^5.7.2"
