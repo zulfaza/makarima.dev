@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react"
+import { Check, Copy } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
 
 import { Button } from "@/components/ui/button"
 
@@ -166,25 +167,30 @@ function CodeSnippet({ block }: { block: CodeBlock }) {
     "idle"
   )
   const lines = block.code.split("\n")
+  const isCopied = copyState === "copied"
+  const timeoutId = useRef<number | null>(null)
 
   useEffect(() => {
-    if (copyState === "idle") {
-      return
-    }
-
-    const timeoutId = window.setTimeout(() => {
-      setCopyState("idle")
-    }, 2000)
-
     return () => {
-      window.clearTimeout(timeoutId)
+      if (timeoutId.current !== null) {
+        window.clearTimeout(timeoutId.current)
+      }
     }
-  }, [copyState])
+  }, [])
 
   async function handleCopyCode() {
     try {
       await navigator.clipboard.writeText(block.code)
+
+      if (timeoutId.current !== null) {
+        window.clearTimeout(timeoutId.current)
+      }
+
       setCopyState("copied")
+      timeoutId.current = window.setTimeout(() => {
+        setCopyState("idle")
+        timeoutId.current = null
+      }, 2000)
     } catch {
       setCopyState("failed")
     }
@@ -208,18 +214,40 @@ function CodeSnippet({ block }: { block: CodeBlock }) {
             {block.language}
           </span>
           <Button
-            aria-label={`Copy code: ${block.title ?? block.language}`}
-            size="xs"
+            aria-label={
+              isCopied
+                ? `Copied code: ${block.title ?? block.language}`
+                : copyState === "failed"
+                  ? `Retry copy: ${block.title ?? block.language}`
+                  : `Copy code: ${block.title ?? block.language}`
+            }
+            size="icon-xs"
+            title={
+              isCopied
+                ? "Copied"
+                : copyState === "failed"
+                  ? "Retry copy"
+                  : "Copy code"
+            }
             variant="outline"
+            data-status={copyState}
+            className="relative overflow-hidden transition-[background-color,border-color,color,box-shadow,transform] duration-200 ease-out data-[status='copied']:border-emerald-500/40 data-[status='copied']:bg-emerald-500/10 data-[status='copied']:text-emerald-700 hover:scale-[1.02] dark:data-[status='copied']:border-emerald-400/40 dark:data-[status='copied']:bg-emerald-400/12 dark:data-[status='copied']:text-emerald-300"
             onClick={() => {
               void handleCopyCode()
             }}
           >
-            {copyState === "copied"
-              ? "Copied"
-              : copyState === "failed"
-                ? "Retry copy"
-                : "Copy code"}
+            <span className="relative block size-3">
+              <Copy
+                data-status={copyState}
+                aria-hidden="true"
+                className="absolute inset-0 size-3 transition-all duration-200 ease-out data-[status='copied']:scale-70 data-[status='copied']:opacity-0"
+              />
+              <Check
+                data-status={copyState}
+                aria-hidden="true"
+                className="absolute inset-0 size-3 scale-70 opacity-0 transition-all duration-200 ease-out data-[status='copied']:scale-100 data-[status='copied']:opacity-100"
+              />
+            </span>
           </Button>
         </div>
       </div>
