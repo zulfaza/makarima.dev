@@ -7,40 +7,39 @@ import {
   siteMetaClassName,
 } from "@/components/site-frame"
 import { Badge } from "@/components/ui/badge"
-import { formatBlogDate, getBlogBySlug } from "@/content/site"
+import { findBlogBySlug, formatBlogDate, getBlogBySlug } from "@/content/site"
+import { createPageMeta } from "@/lib/site-metadata"
 
 import type { BlogEntry } from "@/content/site"
 
 export const Route = createFileRoute("/blogs/$slug")({
-  loader: ({ params }) => loadBlogEntry(params.slug),
+  loader: async ({ params }) => {
+    const entry = await getBlogBySlug({ data: params.slug })
+    if (!entry) throw notFound()
+    return entry
+  },
   head: ({ loaderData }) => ({
-    meta: [
-      {
-        title: loaderData
-          ? `${loaderData.title} | makarima.dev`
-          : "Blog | makarima.dev",
-      },
-      {
-        name: "description",
-        content: loaderData?.summary ?? "Blog entry",
-      },
-    ],
+    meta: createPageMeta({
+      title: loaderData?.title ?? "Blog",
+      description: loaderData?.summary ?? "Blog entry",
+      path: loaderData ? `/blogs/${loaderData.slug}` : "/blogs",
+    }),
   }),
   component: BlogRouteComponent,
 })
 
 export function loadBlogEntry(slug: string) {
-  const entry = getBlogBySlug(slug)
-
-  if (!entry) {
-    throw notFound()
-  }
-
+  const entry = findBlogBySlug(slug)
+  if (!entry) throw notFound()
   return entry
 }
 
 function BlogRouteComponent() {
   const entry = Route.useLoaderData()
+
+  if (!entry) {
+    throw notFound()
+  }
 
   return <BlogDetailPage entry={entry} />
 }
@@ -50,35 +49,31 @@ export function BlogDetailPage({ entry }: { entry: BlogEntry }) {
     <SiteFrame>
       <header className="border-b border-border/80 px-5 py-5 sm:px-8">
         <div className="space-y-3">
+          <Link
+            className="text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none"
+            to="/"
+          >
+            Back to home
+          </Link>
           <div className="space-y-2">
-            <Link
-              className="text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none"
-              to="/"
-            >
-              Back to home
-            </Link>
-
-            <h1 className="text-2xl leading-tight font-medium text-foreground sm:text-3xl">
-              {entry.title}
-            </h1>
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+              <h1 className="text-2xl leading-tight font-medium text-foreground sm:text-3xl">
+                {entry.title}
+              </h1>
+              <span className={siteMetaClassName}>
+                {formatBlogDate(entry.publishedAt)}
+              </span>
+            </div>
           </div>
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-            <p className={siteMetaClassName}>
-              {formatBlogDate(entry.publishedAt)}
-            </p>
-            <ul
-              aria-label={`${entry.title} tags`}
-              className="flex flex-wrap gap-2"
-            >
-              {entry.tags.map((tag) => (
-                <li key={tag}>
-                  <Badge variant="outline" className={siteBadgeClassName}>
-                    {tag}
-                  </Badge>
-                </li>
-              ))}
-            </ul>
-          </div>
+          <ul aria-label={`${entry.title} tags`} className="flex flex-wrap gap-2">
+            {entry.tags.map((tag) => (
+              <li key={tag}>
+                <Badge variant="outline" className={siteBadgeClassName}>
+                  {tag}
+                </Badge>
+              </li>
+            ))}
+          </ul>
         </div>
       </header>
 

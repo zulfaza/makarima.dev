@@ -7,40 +7,39 @@ import {
   siteMetaClassName,
 } from "@/components/site-frame"
 import { Badge } from "@/components/ui/badge"
-import { formatProjectStatus, getProjectBySlug } from "@/content/site"
+import { findProjectBySlug, formatProjectStatus, getProjectBySlug } from "@/content/site"
+import { createPageMeta } from "@/lib/site-metadata"
 
 import type { ProjectEntry } from "@/content/site"
 
 export const Route = createFileRoute("/projects/$slug")({
-  loader: ({ params }) => loadProjectEntry(params.slug),
+  loader: async ({ params }) => {
+    const entry = await getProjectBySlug({ data: params.slug })
+    if (!entry) throw notFound()
+    return entry
+  },
   head: ({ loaderData }) => ({
-    meta: [
-      {
-        title: loaderData
-          ? `${loaderData.name} | makarima.dev`
-          : "Project | makarima.dev",
-      },
-      {
-        name: "description",
-        content: loaderData?.summary ?? "Project entry",
-      },
-    ],
+    meta: createPageMeta({
+      title: loaderData?.name ?? "Project",
+      description: loaderData?.summary ?? "Project entry",
+      path: loaderData ? `/projects/${loaderData.slug}` : "/projects",
+    }),
   }),
   component: ProjectRouteComponent,
 })
 
 export function loadProjectEntry(slug: string) {
-  const entry = getProjectBySlug(slug)
-
-  if (!entry) {
-    throw notFound()
-  }
-
+  const entry = findProjectBySlug(slug)
+  if (!entry) throw notFound()
   return entry
 }
 
 function ProjectRouteComponent() {
   const entry = Route.useLoaderData()
+
+  if (!entry) {
+    throw notFound()
+  }
 
   return <ProjectDetailPage entry={entry} />
 }
@@ -63,14 +62,9 @@ export function ProjectDetailPage({ entry }: { entry: ProjectEntry }) {
               </h1>
               <span className={siteMetaClassName}>{entry.year}</span>
             </div>
-            <p className={siteMetaClassName}>
-              {formatProjectStatus(entry.status)}
-            </p>
+            <p className={siteMetaClassName}>{formatProjectStatus(entry.status)}</p>
           </div>
-          <ul
-            aria-label={`${entry.name} stack`}
-            className="flex flex-wrap gap-2"
-          >
+          <ul aria-label={`${entry.name} stack`} className="flex flex-wrap gap-2">
             {entry.stack.map((item) => (
               <li key={item}>
                 <Badge variant="outline" className={siteBadgeClassName}>

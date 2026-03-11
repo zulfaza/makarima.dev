@@ -2,6 +2,7 @@ import { TanStackDevtools } from "@tanstack/react-devtools"
 import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router"
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools"
 
+import { createPageMeta, siteMetadata } from "@/lib/site-metadata"
 import { themeBootScript } from "@/lib/theme"
 
 import appCss from "../styles.css?url"
@@ -17,13 +18,12 @@ export const Route = createRootRoute({
         content: "width=device-width, initial-scale=1",
       },
       {
-        title: "makarima.dev",
+        name: "theme-color",
+        content: siteMetadata.themeColor,
       },
-      {
-        name: "description",
-        content:
-          "Personal site with notes, projects, and links kept close to the codebase.",
-      },
+      ...createPageMeta({
+        path: "/",
+      }),
     ],
     links: [
       {
