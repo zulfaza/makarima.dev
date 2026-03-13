@@ -15,6 +15,7 @@ const sampleBlogEntry: BlogEntry = {
 const sampleProjectEntry: ProjectEntry = {
   slug: "sample-project",
   name: "Sample Project",
+  faviconHref: "https://assets.example.com/favicon.ico",
   summary: "Sample project summary",
   year: 2026,
   stack: ["React"],
@@ -137,7 +138,9 @@ describe("HomePage", () => {
     expect(screen.getByRole("heading", { name: "Projects" })).toBeTruthy()
     expect(screen.getByRole("link", { name: "Projects" })).toBeTruthy()
     expect(screen.getByRole("link", { name: "Sample Project" })).toBeTruthy()
-    expect(screen.queryByTestId("project-favicon")).toBeNull()
+    expect(screen.getByTestId("project-favicon").getAttribute("src")).toBe(
+      sampleProjectEntry.faviconHref
+    )
     expect(
       screen.queryByRole("heading", { name: "Nothing published yet" })
     ).toBeNull()

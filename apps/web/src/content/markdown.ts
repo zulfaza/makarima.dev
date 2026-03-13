@@ -71,6 +71,22 @@ function readNumberField(data: Record<string, unknown>, field: string, context: 
   return value;
 }
 
+function parseHttpUrl(value: string, field: string, context: string) {
+  let url: URL;
+
+  try {
+    url = new URL(value);
+  } catch {
+    fail(context, `Expected "${field}" to be a valid URL`);
+  }
+
+  if (url.protocol !== "http:" && url.protocol !== "https:") {
+    fail(context, `Expected "${field}" to use http or https`);
+  }
+
+  return url.toString();
+}
+
 function readPublishedAt(data: Record<string, unknown>, context: string): BlogEntry["publishedAt"] {
   const rawValue = data.publishedAt;
 
@@ -155,6 +171,7 @@ function parseProjectFrontmatter(source: string, context: string): ParsedProject
 
   const accessHref = readOptionalStringField(data, "accessHref", context);
   const accessLabel = readOptionalStringField(data, "accessLabel", context);
+  const faviconHref = readOptionalStringField(data, "faviconHref", context);
 
   let access: ProjectEntry["access"];
 
@@ -165,29 +182,20 @@ function parseProjectFrontmatter(source: string, context: string): ParsedProject
 
     access = { kind: "none" };
   } else {
-    let href: string;
-
-    try {
-      const url = new URL(accessHref);
-
-      if (url.protocol !== "http:" && url.protocol !== "https:") {
-        fail(context, 'Expected "accessHref" to use http or https');
-      }
-
-      href = url.toString();
-    } catch {
-      fail(context, 'Expected "accessHref" to be a valid URL');
-    }
-
     access = {
       kind: "external",
-      href,
+      href: parseHttpUrl(accessHref, "accessHref", context),
       label: accessLabel ?? "Open project",
     };
   }
 
   return {
-    faviconHref: access.kind === "external" ? buildProjectFaviconHref(access.href) : undefined,
+    faviconHref:
+      faviconHref !== undefined
+        ? parseHttpUrl(faviconHref, "faviconHref", context)
+        : access.kind === "external"
+          ? buildProjectFaviconHref(access.href)
+          : undefined,
     name: readStringField(data, "name", context),
     summary: readStringField(data, "summary", context),
     year: readNumberField(data, "year", context),

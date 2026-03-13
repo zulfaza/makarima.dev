@@ -105,6 +105,27 @@ Project paragraph.
     });
   });
 
+  test("prefers explicit project faviconHref over derived favicon", () => {
+    const entry = parseProjectMarkdown(
+      "sample-project-override",
+      `---
+name: Sample Project Override
+summary: Sample project summary
+year: 2025
+stack:
+  - TypeScript
+status: active
+accessHref: https://example.com/project
+faviconHref: https://assets.example.com/favicon.ico
+---
+
+Project paragraph.
+`,
+    );
+
+    expect(entry.faviconHref).toBe("https://assets.example.com/favicon.ico");
+  });
+
   test("fails on missing required frontmatter", () => {
     expect(() =>
       parseBlogMarkdown(
@@ -179,6 +200,28 @@ Body.
 
     expect(entry.access).toEqual({ kind: "none" });
     expect(entry.faviconHref).toBeUndefined();
+  });
+
+  test("fails on invalid project faviconHref", () => {
+    expect(() =>
+      parseProjectMarkdown(
+        "bad-favicon-href",
+        `---
+name: Bad Favicon
+summary: Invalid favicon URL
+year: 2025
+stack:
+  - TypeScript
+status: active
+faviconHref: ftp://example.com/favicon.ico
+---
+
+Body.
+`,
+      ),
+    ).toThrowError(
+      '[content:project:bad-favicon-href] Expected "faviconHref" to use http or https',
+    );
   });
 
   test("fails on unsupported markdown nodes", () => {
