@@ -19,6 +19,9 @@ const sampleProjectEntry: ProjectEntry = {
   year: 2026,
   stack: ["React"],
   status: "active",
+  access: {
+    kind: "none",
+  },
   body: [],
 }
 
@@ -40,30 +43,43 @@ async function renderHomePageWithContent(content?: {
 
 describe("HomePage", () => {
   test("renders home sections and detail links", async () => {
+    const { loadBlogs, loadProjects } = await import("@/content/site")
+    const blogs = loadBlogs()
+    const firstProject = loadProjects()[0]
+
+    if (firstProject === undefined || firstProject.access.kind !== "external") {
+      throw new Error("Expected first project with external access")
+    }
+
     await renderHomePageWithContent()
 
-    expect(screen.getByRole("heading", { name: "Blogs" })).toBeTruthy()
     expect(screen.getByRole("heading", { name: "Projects" })).toBeTruthy()
 
-    expect(
-      screen.getByRole("heading", { name: "Building With Calm Constraints" })
-    ).toBeTruthy()
-    const pageTitle = screen.getByRole("heading", {
-      level: 1,
-      name: "makarima.dev",
-    })
+    const pageTitle = screen.getByRole("heading", { level: 1, name: "makarima.dev" })
 
     expect(pageTitle).toBeTruthy()
+    expect(
+      screen.getByText(
+        "Notes, projects, and experiments by Zul Faza Makarima, kept close to the codebase."
+      )
+    ).toBeTruthy()
 
-    const blogLink = screen.getByRole("link", {
-      name: "Building With Calm Constraints",
-    })
-    const projectLink = screen.getByRole("link", { name: "makarima.dev" })
+    const projectLink = screen.getByRole("link", { name: firstProject.name })
+    const accessLink = screen.getByRole("link", { name: firstProject.access.label })
+    const projectRow = projectLink.closest("li")
 
-    expect(blogLink.getAttribute("href")).toBe(
-      "/blogs/building-with-calm-constraints"
-    )
-    expect(projectLink.getAttribute("href")).toBe("/projects/makarima-dev")
+    if (projectRow === null) {
+      throw new Error("Expected project row list item")
+    }
+
+    expect(projectLink.getAttribute("href")).toBe(`/projects/${firstProject.slug}`)
+    expect(accessLink.getAttribute("href")).toBe(firstProject.access.href)
+    expect(
+      within(projectRow).getByTestId("project-favicon").getAttribute("src")
+    ).toBe(firstProject.faviconHref)
+    expect(screen.getAllByText("Active")).toHaveLength(3)
+    expect(screen.queryByRole("heading", { name: "Blogs" })).toBeNull()
+    expect(blogs).toEqual([])
 
     expect(screen.getByRole("button", { name: "Play" })).toBeTruthy()
     expect(screen.queryByText("Pixel snake")).toBeNull()
@@ -121,6 +137,7 @@ describe("HomePage", () => {
     expect(screen.getByRole("heading", { name: "Projects" })).toBeTruthy()
     expect(screen.getByRole("link", { name: "Projects" })).toBeTruthy()
     expect(screen.getByRole("link", { name: "Sample Project" })).toBeTruthy()
+    expect(screen.queryByTestId("project-favicon")).toBeNull()
     expect(
       screen.queryByRole("heading", { name: "Nothing published yet" })
     ).toBeNull()

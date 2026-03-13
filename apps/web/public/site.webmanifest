@@ -1,6 +1,8 @@
 {
-  "name": "",
-  "short_name": "",
+  "id": "/",
+  "name": "makarima.dev",
+  "short_name": "makarima.dev",
+  "description": "Notes, projects, and experiments by Zul Faza Makarima.",
   "icons": [
     {
       "src": "/android-chrome-192x192.png",
@@ -13,6 +15,8 @@
       "type": "image/png"
     }
   ],
+  "start_url": "/",
+  "scope": "/",
   "theme_color": "#141111",
   "background_color": "#141111",
   "display": "standalone"

@@ -8,7 +8,7 @@ import {
 } from "@/components/site-frame"
 import { Badge } from "@/components/ui/badge"
 import { findBlogBySlug, formatBlogDate, getBlogBySlug } from "@/content/site"
-import { createPageMeta } from "@/lib/site-metadata"
+import { createBlogPostingJsonLd, createPageHead } from "@/lib/site-metadata"
 
 import type { BlogEntry } from "@/content/site"
 
@@ -18,13 +18,16 @@ export const Route = createFileRoute("/blogs/$slug")({
     if (!entry) throw notFound()
     return entry
   },
-  head: ({ loaderData }) => ({
-    meta: createPageMeta({
+  head: ({ loaderData }) =>
+    createPageHead({
       title: loaderData?.title ?? "Blog",
       description: loaderData?.summary ?? "Blog entry",
+      keywords: loaderData?.tags,
       path: loaderData ? `/blogs/${loaderData.slug}` : "/blogs",
+      publishedAt: loaderData?.publishedAt,
+      type: "article",
+      jsonLd: loaderData ? [createBlogPostingJsonLd(loaderData)] : [],
     }),
-  }),
   component: BlogRouteComponent,
 })
 
@@ -64,6 +67,9 @@ export function BlogDetailPage({ entry }: { entry: BlogEntry }) {
                 {formatBlogDate(entry.publishedAt)}
               </span>
             </div>
+            <p className="max-w-3xl text-sm leading-7 text-muted-foreground">
+              {entry.summary}
+            </p>
           </div>
           <ul aria-label={`${entry.title} tags`} className="flex flex-wrap gap-2">
             {entry.tags.map((tag) => (

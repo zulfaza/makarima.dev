@@ -1,6 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "makarima-dev",
+  "account_id": "d208f39f5e99d9721643730ff43b738b",
   "main": "@tanstack/react-start/server-entry",
   "compatibility_date": "2026-03-01",
   "compatibility_flags": ["nodejs_compat"],

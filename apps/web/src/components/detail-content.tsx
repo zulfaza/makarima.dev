@@ -1,12 +1,28 @@
-import { Check, Copy } from "lucide-react"
-import { useEffect, useRef, useState } from "react"
+import { Check, Copy } from "lucide-react";
+import { useEffect, useId, useRef, useState } from "react";
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
+import { useEffectiveTheme } from "@/lib/theme";
 
-import type { CodeLanguage, ContentBlock } from "@/content/site"
+import type { CodeLanguage, ContentBlock } from "@/content/site";
 
-type ImageBlock = Extract<ContentBlock, { readonly kind: "image" }>
-type CodeBlock = Extract<ContentBlock, { readonly kind: "code" }>
+type ImageBlock = Extract<ContentBlock, { readonly kind: "image" }>;
+type CodeBlock = Extract<ContentBlock, { readonly kind: "code" }>;
+type MermaidBlock = Extract<ContentBlock, { readonly kind: "mermaid" }>;
+type MermaidRenderer = (typeof import("mermaid"))["default"];
+type MermaidTheme = "dark" | "default";
+type MermaidRenderState =
+  | {
+      readonly status: "loading";
+    }
+  | {
+      readonly status: "failed";
+      readonly message: string;
+    }
+  | {
+      readonly status: "ready";
+      readonly svg: string;
+    };
 
 type CodeTokenKind =
   | "plain"
@@ -16,19 +32,19 @@ type CodeTokenKind =
   | "number"
   | "property"
   | "string"
-  | "variable"
+  | "variable";
 
 type CodeToken = {
-  readonly kind: CodeTokenKind
-  readonly content: string
-}
+  readonly kind: CodeTokenKind;
+  readonly content: string;
+};
 
 const highlightPatternByLanguage: Record<CodeLanguage, RegExp> = {
   bash: /#[^\n]*|"(?:\\.|[^"])*"|'(?:\\.|[^'])*'|\$[A-Za-z_][\w]*|\b(?:if|then|fi|for|in|do|done|case|esac|function|local|export)\b|--?[A-Za-z][\w-]*|\b\d+(?:\.\d+)?\b/g,
   json: /"(?:\\.|[^"])*"\s*:|"(?:\\.|[^"])*"|\b(?:true|false|null)\b|\b\d+(?:\.\d+)?\b/g,
   ts: /\/\/[^\n]*|"(?:\\.|[^"])*"|'(?:\\.|[^'])*'|`(?:\\.|[^`])*`|\b(?:const|export|function|if|import|readonly|return|switch|type)\b|\b(?:true|false|null|undefined)\b|\b\d+(?:\.\d+)?\b/g,
   tsx: /\/\/[^\n]*|"(?:\\.|[^"])*"|'(?:\\.|[^'])*'|`(?:\\.|[^`])*`|\b(?:const|export|function|if|import|readonly|return|switch|type)\b|\b(?:true|false|null|undefined)\b|\b\d+(?:\.\d+)?\b/g,
-}
+};
 
 const tokenClassNameByKind: Record<CodeTokenKind, string> = {
   plain: "text-foreground/88",
@@ -39,32 +55,36 @@ const tokenClassNameByKind: Record<CodeTokenKind, string> = {
   property: "text-emerald-700 dark:text-emerald-300",
   string: "text-amber-700 dark:text-amber-300",
   variable: "text-rose-700 dark:text-rose-300",
+};
+
+let mermaidRendererPromise: Promise<MermaidRenderer> | null = null;
+
+function loadMermaidRenderer() {
+  mermaidRendererPromise ??= import("mermaid").then((module) => module.default);
+
+  return mermaidRendererPromise;
 }
 
-export function DetailContent({
-  blocks,
-}: {
-  blocks: ReadonlyArray<ContentBlock>
-}) {
-  const [previewImage, setPreviewImage] = useState<ImageBlock | null>(null)
+export function DetailContent({ blocks }: { blocks: ReadonlyArray<ContentBlock> }) {
+  const [previewImage, setPreviewImage] = useState<ImageBlock | null>(null);
 
   useEffect(() => {
     if (!previewImage) {
-      return
+      return;
     }
 
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
-        setPreviewImage(null)
+        setPreviewImage(null);
       }
     }
 
-    window.addEventListener("keydown", handleKeyDown)
+    window.addEventListener("keydown", handleKeyDown);
 
     return () => {
-      window.removeEventListener("keydown", handleKeyDown)
-    }
-  }, [previewImage])
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [previewImage]);
 
   return (
     <>
@@ -74,13 +94,10 @@ export function DetailContent({
             switch (block.kind) {
               case "paragraph":
                 return (
-                  <p
-                    key={`paragraph-${index}`}
-                    className="text-sm leading-7 text-foreground/88"
-                  >
+                  <p key={`paragraph-${index}`} className="text-sm leading-7 text-foreground/88">
                     {block.content}
                   </p>
-                )
+                );
               case "image":
                 return (
                   <figure
@@ -99,22 +116,15 @@ export function DetailContent({
                         src={block.src}
                       />
                     </button>
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                      <figcaption className="max-w-2xl text-xs leading-6 text-muted-foreground">
-                        {block.caption ?? block.alt}
-                      </figcaption>
-                      <Button
-                        size="xs"
-                        variant="outline"
-                        onClick={() => setPreviewImage(block)}
-                      >
-                        Preview image
-                      </Button>
-                    </div>
+                    <figcaption className="max-w-2xl text-xs leading-6 text-muted-foreground">
+                      {block.caption ?? block.alt}
+                    </figcaption>
                   </figure>
-                )
+                );
               case "code":
-                return <CodeSnippet key={`code-${index}`} block={block} />
+                return <CodeSnippet key={`code-${index}`} block={block} />;
+              case "mermaid":
+                return <MermaidDiagram key={`mermaid-${index}`} block={block} />;
             }
           })}
         </div>
@@ -133,9 +143,7 @@ export function DetailContent({
             onClick={(event) => event.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-border/80 px-4 py-3">
-              <p className="text-xs text-muted-foreground">
-                {previewImage.alt}
-              </p>
+              <p className="text-xs text-muted-foreground">{previewImage.alt}</p>
               <Button
                 aria-label="Close image preview"
                 size="xs"
@@ -159,40 +167,166 @@ export function DetailContent({
         </div>
       ) : null}
     </>
-  )
+  );
+}
+
+function MermaidDiagram({ block }: { block: MermaidBlock }) {
+  const theme = useEffectiveTheme();
+  const blockId = useId().replaceAll(":", "-");
+  const renderAttempt = useRef(0);
+  const diagramRef = useRef<HTMLDivElement | null>(null);
+  const [renderState, setRenderState] = useState<MermaidRenderState>({
+    status: "loading",
+  });
+  const mermaidTheme: MermaidTheme = theme === "dark" ? "dark" : "default";
+
+  useEffect(() => {
+    let isActive = true;
+
+    renderAttempt.current += 1;
+    const currentAttempt = renderAttempt.current;
+
+    setRenderState({
+      status: "loading",
+    });
+
+    void loadMermaidRenderer()
+      .then(async (mermaid) => {
+        mermaid.initialize({
+          startOnLoad: false,
+          securityLevel: "strict",
+          theme: mermaidTheme,
+        });
+
+        const result = await mermaid.render(`mermaid-${blockId}-${currentAttempt}`, block.code);
+
+        if (!isActive || renderAttempt.current !== currentAttempt) {
+          return;
+        }
+
+        setRenderState({
+          status: "ready",
+          svg: result.svg,
+        });
+      })
+      .catch((error: unknown) => {
+        if (!isActive || renderAttempt.current !== currentAttempt) {
+          return;
+        }
+
+        setRenderState({
+          status: "failed",
+          message:
+            error instanceof Error && error.message.length > 0
+              ? error.message
+              : "Unknown Mermaid render error",
+        });
+      });
+
+    return () => {
+      isActive = false;
+    };
+  }, [block.code, blockId, mermaidTheme]);
+
+  useEffect(() => {
+    if (renderState.status !== "ready") {
+      return;
+    }
+
+    const container = diagramRef.current;
+
+    if (!container) {
+      return;
+    }
+
+    const template = document.createElement("template");
+    template.innerHTML = renderState.svg.trim();
+    const firstChild = template.content.firstElementChild;
+
+    if (!(firstChild instanceof SVGElement)) {
+      setRenderState({
+        status: "failed",
+        message: "Invalid Mermaid SVG output",
+      });
+
+      return;
+    }
+
+    container.replaceChildren(firstChild);
+  }, [renderState]);
+
+  return (
+    <figure className="overflow-hidden border border-border/80 bg-card/80">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/80 bg-muted/50 px-4 py-3">
+        <div className="space-y-1">
+          {block.title ? (
+            <p className="text-xs font-medium text-foreground">{block.title}</p>
+          ) : null}
+          {block.caption ? (
+            <figcaption className="text-xs leading-5 text-muted-foreground">
+              {block.caption}
+            </figcaption>
+          ) : null}
+        </div>
+        <span className="text-[11px] tracking-[0.24em] text-muted-foreground uppercase">
+          diagram
+        </span>
+      </div>
+      <div className="overflow-x-auto px-4 py-4">
+        {renderState.status === "ready" ? (
+          <div className="flex min-w-fit justify-center">
+            <div
+              ref={diagramRef}
+              data-testid="mermaid-diagram"
+              aria-label={block.title ?? block.caption ?? "Mermaid diagram"}
+              className="text-foreground [&_svg]:h-auto [&_svg]:max-w-none [&_svg]:overflow-visible"
+            />
+          </div>
+        ) : renderState.status === "failed" ? (
+          <div className="space-y-3">
+            <p className="text-xs font-medium text-foreground">Unable to render diagram.</p>
+            <p className="text-xs leading-5 text-muted-foreground">{renderState.message}</p>
+            <pre className="overflow-x-auto border border-border/70 bg-muted/30 px-4 py-4 text-[13px] leading-6 whitespace-pre-wrap">
+              {block.code}
+            </pre>
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground">Rendering diagram...</p>
+        )}
+      </div>
+    </figure>
+  );
 }
 
 function CodeSnippet({ block }: { block: CodeBlock }) {
-  const [copyState, setCopyState] = useState<"copied" | "failed" | "idle">(
-    "idle"
-  )
-  const lines = block.code.split("\n")
-  const isCopied = copyState === "copied"
-  const timeoutId = useRef<number | null>(null)
+  const [copyState, setCopyState] = useState<"copied" | "failed" | "idle">("idle");
+  const lines = block.code.split("\n");
+  const isCopied = copyState === "copied";
+  const timeoutId = useRef<number | null>(null);
 
   useEffect(() => {
     return () => {
       if (timeoutId.current !== null) {
-        window.clearTimeout(timeoutId.current)
+        window.clearTimeout(timeoutId.current);
       }
-    }
-  }, [])
+    };
+  }, []);
 
   async function handleCopyCode() {
     try {
-      await navigator.clipboard.writeText(block.code)
+      await navigator.clipboard.writeText(block.code);
 
       if (timeoutId.current !== null) {
-        window.clearTimeout(timeoutId.current)
+        window.clearTimeout(timeoutId.current);
       }
 
-      setCopyState("copied")
+      setCopyState("copied");
       timeoutId.current = window.setTimeout(() => {
-        setCopyState("idle")
-        timeoutId.current = null
-      }, 2000)
+        setCopyState("idle");
+        timeoutId.current = null;
+      }, 2000);
     } catch {
-      setCopyState("failed")
+      setCopyState("failed");
     }
   }
 
@@ -222,18 +356,12 @@ function CodeSnippet({ block }: { block: CodeBlock }) {
                   : `Copy code: ${block.title ?? block.language}`
             }
             size="icon-xs"
-            title={
-              isCopied
-                ? "Copied"
-                : copyState === "failed"
-                  ? "Retry copy"
-                  : "Copy code"
-            }
+            title={isCopied ? "Copied" : copyState === "failed" ? "Retry copy" : "Copy code"}
             variant="outline"
             data-status={copyState}
             className="relative overflow-hidden transition-[background-color,border-color,color,box-shadow,transform] duration-200 ease-out data-[status='copied']:border-emerald-500/40 data-[status='copied']:bg-emerald-500/10 data-[status='copied']:text-emerald-700 hover:scale-[1.02] dark:data-[status='copied']:border-emerald-400/40 dark:data-[status='copied']:bg-emerald-400/12 dark:data-[status='copied']:text-emerald-300"
             onClick={() => {
-              void handleCopyCode()
+              void handleCopyCode();
             }}
           >
             <span className="relative block size-3">
@@ -253,10 +381,7 @@ function CodeSnippet({ block }: { block: CodeBlock }) {
       </div>
       <pre className="overflow-x-auto px-4 py-4 text-[13px] leading-6">
         {lines.map((line, index) => (
-          <code
-            key={`line-${index}`}
-            className="grid grid-cols-[2rem_1fr] gap-4 whitespace-pre"
-          >
+          <code key={`line-${index}`} className="grid grid-cols-[2rem_1fr] gap-4 whitespace-pre">
             <span
               aria-hidden="true"
               className="text-right text-[11px] text-muted-foreground/70 select-none"
@@ -264,90 +389,82 @@ function CodeSnippet({ block }: { block: CodeBlock }) {
               {index + 1}
             </span>
             <span>
-              {tokenizeCodeLine(block.language, line).map(
-                (token, tokenIndex) => (
-                  <span
-                    key={`token-${index}-${tokenIndex}`}
-                    className={tokenClassNameByKind[token.kind]}
-                  >
-                    {token.content}
-                  </span>
-                )
-              )}
+              {tokenizeCodeLine(block.language, line).map((token, tokenIndex) => (
+                <span
+                  key={`token-${index}-${tokenIndex}`}
+                  className={tokenClassNameByKind[token.kind]}
+                >
+                  {token.content}
+                </span>
+              ))}
             </span>
           </code>
         ))}
       </pre>
     </figure>
-  )
+  );
 }
 
-function tokenizeCodeLine(
-  language: CodeLanguage,
-  line: string
-): ReadonlyArray<CodeToken> {
+function tokenizeCodeLine(language: CodeLanguage, line: string): ReadonlyArray<CodeToken> {
   if (line.length === 0) {
-    return [{ kind: "plain", content: " " }]
+    return [{ kind: "plain", content: " " }];
   }
 
-  const pattern = highlightPatternByLanguage[language]
-  const tokens: Array<CodeToken> = []
-  let currentIndex = 0
+  const pattern = highlightPatternByLanguage[language];
+  const tokens: Array<CodeToken> = [];
+  let currentIndex = 0;
 
   for (const match of line.matchAll(pattern)) {
-    const matchedToken = match[0]
+    const matchedToken = match[0];
 
     if (match.index > currentIndex) {
       tokens.push({
         kind: "plain",
         content: line.slice(currentIndex, match.index),
-      })
+      });
     }
 
     tokens.push({
       kind: classifyCodeToken(language, matchedToken),
       content: matchedToken,
-    })
+    });
 
-    currentIndex = match.index + matchedToken.length
+    currentIndex = match.index + matchedToken.length;
   }
 
   if (currentIndex < line.length) {
     tokens.push({
       kind: "plain",
       content: line.slice(currentIndex),
-    })
+    });
   }
 
-  return tokens
+  return tokens;
 }
 
-function classifyCodeToken(
-  language: CodeLanguage,
-  token: string
-): CodeTokenKind {
+function classifyCodeToken(language: CodeLanguage, token: string): CodeTokenKind {
   if (token.startsWith("//") || token.startsWith("#")) {
-    return "comment"
+    return "comment";
   }
 
   if (token.startsWith("$")) {
-    return "variable"
+    return "variable";
   }
 
   if (language === "json" && token.trimEnd().endsWith(":")) {
-    return "property"
+    return "property";
   }
 
   if (token.startsWith('"') || token.startsWith("'") || token.startsWith("`")) {
-    return "string"
+    return "string";
   }
 
   if (/^\d+(?:\.\d+)?$/u.test(token)) {
-    return "number"
+    return "number";
   }
 
   if (language === "bash" && token.startsWith("-")) {
-    return "command"
+    return "command";
   }
 
   if (
@@ -365,8 +482,8 @@ function classifyCodeToken(
     token === "null" ||
     token === "undefined"
   ) {
-    return "keyword"
+    return "keyword";
   }
 
-  return "plain"
+  return "plain";
 }

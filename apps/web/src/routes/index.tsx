@@ -1,25 +1,42 @@
+import { ExternalLink } from "lucide-react"
 import { createFileRoute, Link } from "@tanstack/react-router"
 
 import { FooterSnakeGame } from "@/components/footer-snake-game"
+import { ProjectStatusBadge } from "@/components/project-status-badge"
+import { ProjectTitle } from "@/components/project-title"
 import {
   SiteFrame,
   siteBadgeClassName,
   siteMetaClassName,
 } from "@/components/site-frame"
 import { Badge } from "@/components/ui/badge"
+import { buttonVariants } from "@/components/ui/button"
 import {
   formatBlogDate,
-  formatProjectStatus,
   getBlogs,
   getProjects,
 } from "@/content/site"
 import type { BlogEntry, ProjectEntry } from "@/content/site"
+import {
+  createPageHead,
+  createPersonJsonLd,
+  createWebsiteJsonLd,
+} from "@/lib/site-metadata"
 
 export const Route = createFileRoute("/")({
   loader: async () => {
     const [blogs, projects] = await Promise.all([getBlogs(), getProjects()])
     return { blogs, projects }
   },
+  head: () =>
+    createPageHead({
+      title: "Notes, projects, and experiments",
+      description:
+        "Notes, projects, and experiments by Zul Faza Makarima, kept close to the codebase.",
+      keywords: ["engineering notes", "software projects", "portfolio"],
+      path: "/",
+      jsonLd: [createWebsiteJsonLd(), createPersonJsonLd()],
+    }),
   component: HomePageRoute,
 })
 
@@ -28,6 +45,7 @@ const sectionLinkClassName =
 const sectionClassName = "px-5 py-6 sm:px-8"
 const sectionHeadingClassName = "text-base font-medium text-foreground"
 const sectionListClassName = "divide-y divide-border/80 border-y border-border/80"
+const projectSectionListClassName = "divide-y divide-border/80 border-t border-border/80"
 
 function getSectionClassName(className?: string) {
   return className === undefined
@@ -60,6 +78,10 @@ export function HomePage({ blogs, projects }: HomePageProps) {
             <h1 className="max-w-2xl text-2xl leading-tight font-medium text-foreground sm:text-3xl">
               makarima.dev
             </h1>
+            <p className="max-w-2xl text-sm leading-7 text-muted-foreground">
+              Notes, projects, and experiments by Zul Faza Makarima, kept close
+              to the codebase.
+            </p>
           </div>
           {showSectionNavigation ? (
             <nav
@@ -183,47 +205,63 @@ function ProjectsSection({ projects }: { projects: ReadonlyArray<ProjectEntry> }
         <h2 id="projects" className={sectionHeadingClassName}>
           Projects
         </h2>
-        <ol className={sectionListClassName}>
+        <ol className={projectSectionListClassName}>
           {projects.map((project) => (
             <li key={project.slug} className="grid gap-3 py-4">
-              <article className="space-y-2">
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                  <h3 className="text-sm font-medium text-foreground">
-                    <Link
-                      className="transition-colors hover:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none"
-                      to="/projects/$slug"
-                      params={{
-                        slug: project.slug,
-                      }}
+              <div className="grid gap-5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
+                <article className="space-y-3">
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                    <ProjectTitle faviconHref={project.faviconHref}>
+                      <h3 className="text-sm font-medium text-foreground">
+                        <Link
+                          className="transition-colors hover:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none"
+                          to="/projects/$slug"
+                          params={{
+                            slug: project.slug,
+                          }}
+                        >
+                          {project.name}
+                        </Link>
+                      </h3>
+                    </ProjectTitle>
+                    <span className={siteMetaClassName}>{project.year}</span>
+                  </div>
+                  <p className="max-w-2xl text-sm leading-7 text-foreground/88">
+                    {project.summary}
+                  </p>
+                  <ul
+                    aria-label={`${project.name} stack`}
+                    className="flex flex-wrap gap-2"
+                  >
+                    {project.stack.map((item) => (
+                      <li key={item}>
+                        <Badge
+                          variant="outline"
+                          className={siteBadgeClassName}
+                        >
+                          {item}
+                        </Badge>
+                      </li>
+                    ))}
+                  </ul>
+                </article>
+                <div className="flex flex-wrap items-center gap-2 sm:justify-end sm:pt-px">
+                  <ProjectStatusBadge
+                    className={siteBadgeClassName}
+                    status={project.status}
+                  />
+                  {project.access.kind === "external" ? (
+                    <a
+                      className={buttonVariants({ size: "sm", variant: "outline" })}
+                      href={project.access.href}
+                      rel="noreferrer"
+                      target="_blank"
                     >
-                      {project.name}
-                    </Link>
-                  </h3>
-                  <span className={siteMetaClassName}>{project.year}</span>
+                      {project.access.label}
+                      <ExternalLink />
+                    </a>
+                  ) : null}
                 </div>
-                <p className="max-w-2xl text-sm leading-7 text-foreground/88">
-                  {project.summary}
-                </p>
-              </article>
-              <div className="space-y-2">
-                <p className={siteMetaClassName}>
-                  {formatProjectStatus(project.status)}
-                </p>
-                <ul
-                  aria-label={`${project.name} stack`}
-                  className="flex flex-wrap gap-2"
-                >
-                  {project.stack.map((item) => (
-                    <li key={item}>
-                      <Badge
-                        variant="outline"
-                        className={siteBadgeClassName}
-                      >
-                        {item}
-                      </Badge>
-                    </li>
-                  ))}
-                </ul>
               </div>
             </li>
           ))}

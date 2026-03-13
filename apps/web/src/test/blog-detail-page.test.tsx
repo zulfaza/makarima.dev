@@ -1,36 +1,57 @@
 import { isNotFound } from "@tanstack/react-router"
 import { fireEvent, screen } from "@testing-library/react"
 
-import { loadBlogs } from "@/content/site"
 import { BlogDetailPage, loadBlogEntry } from "@/routes/blogs/$slug"
 import { renderWithRouter } from "@/test/render-with-router"
 import { getClipboardText } from "@/test/setup"
 
+import type { BlogEntry } from "@/content/site"
+
+const sampleBlogEntry: BlogEntry = {
+  slug: "content-boundary",
+  title: "Content boundary",
+  summary: "Personal projects last longer when the constraints stay visible.",
+  publishedAt: "2026-02-14",
+  tags: ["typescript"],
+  body: [
+    {
+      kind: "paragraph",
+      content: "Personal projects last longer when the constraints stay visible.",
+    },
+    {
+      kind: "image",
+      src: "/images/content-preview.svg",
+      alt: "Editorial layout sketch with cards and code columns",
+      caption: "A compact editorial sketch for the article layout.",
+    },
+    {
+      kind: "code",
+      language: "ts",
+      title: "Typed snippet",
+      code: "type ContentBlock = { readonly kind: 'paragraph'; readonly content: string }",
+    },
+  ],
+}
+
 describe("BlogDetailPage", () => {
   test("renders blog detail content", () => {
-    const entry = loadBlogs()[0]
-
-    renderWithRouter(<BlogDetailPage entry={entry} />)
+    renderWithRouter(<BlogDetailPage entry={sampleBlogEntry} />)
 
     const pageTitle = screen.getByRole("heading", {
       level: 1,
-      name: entry.title,
+      name: sampleBlogEntry.title,
     })
 
     expect(pageTitle).toBeTruthy()
     expect(screen.getByText("Feb 14, 2026")).toBeTruthy()
+    expect(screen.getAllByText(sampleBlogEntry.summary)).toHaveLength(2)
     expect(screen.getByText("typescript")).toBeTruthy()
-    expect(
-      screen.getByText(
-        "Personal projects last longer when the constraints stay visible."
-      )
-    ).toBeTruthy()
     expect(
       screen.getByRole("img", {
         name: "Editorial layout sketch with cards and code columns",
       })
     ).toBeTruthy()
-    const codeHeading = screen.getByText("Content boundary")
+    const codeHeading = screen.getByText("Typed snippet")
     const codeBlock = codeHeading.closest("figure")
 
     expect(codeHeading).toBeTruthy()
@@ -44,9 +65,7 @@ describe("BlogDetailPage", () => {
   })
 
   test("opens an image preview from rich content", () => {
-    const entry = loadBlogs()[0]
-
-    renderWithRouter(<BlogDetailPage entry={entry} />)
+    renderWithRouter(<BlogDetailPage entry={sampleBlogEntry} />)
 
     fireEvent.click(screen.getByRole("button", { name: /Preview image:/i }))
 
@@ -61,9 +80,7 @@ describe("BlogDetailPage", () => {
   })
 
   test("copies highlighted blog code", async () => {
-    const entry = loadBlogs()[0]
-
-    renderWithRouter(<BlogDetailPage entry={entry} />)
+    renderWithRouter(<BlogDetailPage entry={sampleBlogEntry} />)
 
     fireEvent.click(screen.getByRole("button", { name: /Copy code:/i }))
 

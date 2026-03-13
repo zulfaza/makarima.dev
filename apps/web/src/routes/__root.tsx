@@ -2,7 +2,11 @@ import { TanStackDevtools } from "@tanstack/react-devtools"
 import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router"
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools"
 
-import { createPageMeta, siteMetadata } from "@/lib/site-metadata"
+import {
+  createPageMeta,
+  createSiteLinks,
+  siteMetadata,
+} from "@/lib/site-metadata"
 import { themeBootScript } from "@/lib/theme"
 
 import appCss from "../styles.css?url"
@@ -30,6 +34,7 @@ export const Route = createRootRoute({
         rel: "stylesheet",
         href: appCss,
       },
+      ...createSiteLinks(),
     ],
   }),
   shellComponent: RootDocument,
