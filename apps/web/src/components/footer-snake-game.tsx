@@ -1,61 +1,55 @@
-import { useEffect, useEffectEvent, useState } from "react"
+import { useEffect, useEffectEvent, useState } from "react";
 
-import { Button } from "@/components/ui/button"
-import { useEffectiveTheme } from "@/lib/theme"
-import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button";
+import { useEffectiveTheme } from "@/lib/theme";
+import { cn } from "@/lib/utils";
 
-import type { EffectiveTheme } from "@/lib/theme"
-import type { CSSProperties } from "react"
+import type { EffectiveTheme } from "@/lib/theme";
+import type { CSSProperties } from "react";
 
-export type GamePhase =
-  | "idle"
-  | "morphing"
-  | "paused"
-  | "playing"
-  | "game-over"
-  | "won"
-export type Direction = "up" | "down" | "left" | "right"
+export type GamePhase = "idle" | "morphing" | "paused" | "playing" | "game-over" | "won";
+export type Direction = "up" | "down" | "left" | "right";
 
 export type Point = {
-  readonly x: number
-  readonly y: number
-}
+  readonly x: number;
+  readonly y: number;
+};
 
 export type SnakeState = {
-  readonly direction: Direction
-  readonly food: Point | null
-  readonly pendingDirection: Direction
-  readonly score: number
-  readonly snake: ReadonlyArray<Point>
-}
+  readonly direction: Direction;
+  readonly food: Point | null;
+  readonly pendingDirection: Direction;
+  readonly score: number;
+  readonly snake: ReadonlyArray<Point>;
+};
 
 type IdleGameState = {
-  readonly phase: "idle"
-}
+  readonly phase: "idle";
+};
 
 type MorphingGameState = {
-  readonly phase: "morphing"
-}
+  readonly phase: "morphing";
+};
 
 type PlayingGameState = {
-  readonly phase: "playing"
-  readonly snakeState: SnakeState
-}
+  readonly phase: "playing";
+  readonly snakeState: SnakeState;
+};
 
 type PausedGameState = {
-  readonly phase: "paused"
-  readonly snakeState: SnakeState
-}
+  readonly phase: "paused";
+  readonly snakeState: SnakeState;
+};
 
 type GameOverState = {
-  readonly phase: "game-over"
-  readonly snakeState: SnakeState
-}
+  readonly phase: "game-over";
+  readonly snakeState: SnakeState;
+};
 
 type WonGameState = {
-  readonly phase: "won"
-  readonly snakeState: SnakeState
-}
+  readonly phase: "won";
+  readonly snakeState: SnakeState;
+};
 
 type GameState =
   | IdleGameState
@@ -63,23 +57,23 @@ type GameState =
   | PausedGameState
   | PlayingGameState
   | GameOverState
-  | WonGameState
+  | WonGameState;
 
 type FooterSnakeGameProps = {
-  readonly morphDurationMs?: number
-  readonly random?: () => number
-  readonly tickDurationMs?: number
-}
+  readonly morphDurationMs?: number;
+  readonly random?: () => number;
+  readonly tickDurationMs?: number;
+};
 
-const defaultTickDurationMs = 180
-const defaultMorphDurationMs = 300
-const boardColumns = 27
-const boardRows = 15
-const boardCellWidthPercent = 100 / boardColumns
-const boardCellHeightPercent = 100 / boardRows
+const defaultTickDurationMs = 180;
+const defaultMorphDurationMs = 300;
+const boardColumns = 27;
+const boardRows = 15;
+const boardCellWidthPercent = 100 / boardColumns;
+const boardCellHeightPercent = 100 / boardRows;
 
-const logoOffset = createPoint(11, 4)
-const snakeOffset = createPoint(9, 2)
+const logoOffset = createPoint(11, 4);
+const snakeOffset = createPoint(9, 2);
 
 const idleLogoCells: ReadonlyArray<Point> = [
   offsetPoint(createPoint(0, 0), logoOffset),
@@ -95,139 +89,134 @@ const idleLogoCells: ReadonlyArray<Point> = [
   offsetPoint(createPoint(4, 2), logoOffset),
   offsetPoint(createPoint(4, 3), logoOffset),
   offsetPoint(createPoint(4, 4), logoOffset),
-]
+];
 
 const initialSnakeBody: ReadonlyArray<Point> = [
   offsetPoint(createPoint(5, 4), snakeOffset),
   offsetPoint(createPoint(4, 4), snakeOffset),
   offsetPoint(createPoint(3, 4), snakeOffset),
-]
+];
 
-const initialDirection: Direction = "right"
+const initialDirection: Direction = "right";
 
 export function FooterSnakeGame({
   morphDurationMs = defaultMorphDurationMs,
   random = Math.random,
   tickDurationMs = defaultTickDurationMs,
 }: FooterSnakeGameProps) {
-  const theme = useEffectiveTheme()
-  const [gameState, setGameState] = useState<GameState>({ phase: "idle" })
+  const theme = useEffectiveTheme();
+  const [gameState, setGameState] = useState<GameState>({ phase: "idle" });
 
   const queueDirection = useEffectEvent((direction: Direction) => {
-    setGameState((currentState) => queueNextDirection(currentState, direction))
-  })
+    setGameState((currentState) => queueNextDirection(currentState, direction));
+  });
 
   const advanceGame = useEffectEvent(() => {
-    setGameState((currentState) => advanceGameState(currentState, random))
-  })
+    setGameState((currentState) => advanceGameState(currentState, random));
+  });
 
   const pauseGame = useEffectEvent(() => {
     setGameState((currentState) => {
       if (currentState.phase !== "playing") {
-        return currentState
+        return currentState;
       }
 
       return {
         phase: "paused",
         snakeState: currentState.snakeState,
-      }
-    })
-  })
+      };
+    });
+  });
 
   useEffect(() => {
     if (gameState.phase !== "morphing") {
-      return
+      return;
     }
 
     const timeoutId = window.setTimeout(() => {
-      setGameState(createPlayingState(random))
-    }, morphDurationMs)
+      setGameState(createPlayingState(random));
+    }, morphDurationMs);
 
     return () => {
-      window.clearTimeout(timeoutId)
-    }
-  }, [gameState.phase, morphDurationMs, random])
+      window.clearTimeout(timeoutId);
+    };
+  }, [gameState.phase, morphDurationMs, random]);
 
   useEffect(() => {
     if (gameState.phase !== "playing") {
-      return
+      return;
     }
 
     const intervalId = window.setInterval(() => {
-      advanceGame()
-    }, tickDurationMs)
+      advanceGame();
+    }, tickDurationMs);
 
     return () => {
-      window.clearInterval(intervalId)
-    }
-  }, [advanceGame, gameState.phase, tickDurationMs])
+      window.clearInterval(intervalId);
+    };
+  }, [advanceGame, gameState.phase, tickDurationMs]);
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
-      const direction = parseDirectionKey(event.key)
+      const direction = parseDirectionKey(event.key);
 
       if (!direction) {
-        return
+        return;
       }
 
-      event.preventDefault()
-      queueDirection(direction)
+      event.preventDefault();
+      queueDirection(direction);
     }
 
-    window.addEventListener("keydown", handleKeyDown)
+    window.addEventListener("keydown", handleKeyDown);
 
     return () => {
-      window.removeEventListener("keydown", handleKeyDown)
-    }
-  }, [queueDirection])
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [queueDirection]);
 
   useEffect(() => {
     function handleBlur() {
-      pauseGame()
+      pauseGame();
     }
 
     function handleVisibilityChange() {
       if (document.visibilityState === "hidden") {
-        pauseGame()
+        pauseGame();
       }
     }
 
-    window.addEventListener("blur", handleBlur)
-    document.addEventListener("visibilitychange", handleVisibilityChange)
+    window.addEventListener("blur", handleBlur);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
-      window.removeEventListener("blur", handleBlur)
-      document.removeEventListener("visibilitychange", handleVisibilityChange)
-    }
-  }, [pauseGame])
+      window.removeEventListener("blur", handleBlur);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [pauseGame]);
 
-  const snakeCells = getRenderedSnakeCells(gameState)
-  const head = snakeCells[0]
-  const food = getRenderedFood(gameState)
-  const isResultPhase =
-    gameState.phase === "game-over" || gameState.phase === "won"
-  const isIdle = gameState.phase === "idle"
-  const isPaused = gameState.phase === "paused"
-  const showControls = gameState.phase !== "idle"
-  const isPlaying = gameState.phase === "playing"
-  const showPauseButton =
-    gameState.phase === "playing" || gameState.phase === "paused"
-  const showScore = gameState.phase !== "idle"
-  const actionLabel = gameState.phase === "idle" ? "Play" : "Play again"
-  const score = getScore(gameState)
-  const boardStyle = getBoardStyle(theme)
+  const snakeCells = getRenderedSnakeCells(gameState);
+  const head = snakeCells[0];
+  const food = getRenderedFood(gameState);
+  const isResultPhase = gameState.phase === "game-over" || gameState.phase === "won";
+  const isIdle = gameState.phase === "idle";
+  const isPaused = gameState.phase === "paused";
+  const showControls = gameState.phase !== "idle";
+  const isPlaying = gameState.phase === "playing";
+  const showPauseButton = gameState.phase === "playing" || gameState.phase === "paused";
+  const showScore = gameState.phase !== "idle";
+  const actionLabel = gameState.phase === "idle" ? "Play" : "Play again";
+  const score = getScore(gameState);
+  const boardStyle = getBoardStyle(theme);
 
   return (
-    <section
-      aria-label="Footer snake game"
-      className="border-t border-border/80 px-5 py-5 sm:px-8"
-    >
+    <section aria-label="Footer snake game" className="border-t border-border/80 px-5 py-5 sm:px-8">
       <div className="mx-auto flex w-full flex-col items-center gap-4 text-center">
         <div
           aria-label="Pixel M snake board"
           className={cn(
             "relative w-full overflow-hidden rounded-[1.75rem]",
-            isIdle ? "border border-transparent" : "border border-border/80"
+            isIdle ? "border border-transparent" : "border border-border/80",
           )}
           data-phase={gameState.phase}
           data-testid="footer-snake-board"
@@ -246,7 +235,7 @@ export function FooterSnakeGame({
           <div
             className={cn(
               "pointer-events-none absolute top-4 right-4 z-10 text-[11px] leading-none text-foreground/72 transition-opacity duration-200",
-              showScore ? "opacity-100" : "opacity-0"
+              showScore ? "opacity-100" : "opacity-0",
             )}
             data-testid="snake-score"
           >
@@ -257,12 +246,12 @@ export function FooterSnakeGame({
               "absolute z-10 flex items-center gap-2 transition-[top,left,transform,opacity] duration-300 ease-out",
               isIdle
                 ? "top-[72%] left-1/2 -translate-x-1/2 -translate-y-1/2"
-                : "top-4 left-4 translate-x-0 translate-y-0"
+                : "top-4 left-4 translate-x-0 translate-y-0",
             )}
           >
             <Button
               onClick={() => {
-                setGameState({ phase: "morphing" })
+                setGameState({ phase: "morphing" });
               }}
               type="button"
               variant={gameState.phase === "idle" ? "default" : "outline"}
@@ -277,18 +266,18 @@ export function FooterSnakeGame({
                       return {
                         phase: "paused",
                         snakeState: currentState.snakeState,
-                      }
+                      };
                     }
 
                     if (currentState.phase === "paused") {
                       return {
                         phase: "playing",
                         snakeState: currentState.snakeState,
-                      }
+                      };
                     }
 
-                    return currentState
-                  })
+                    return currentState;
+                  });
                 }}
                 type="button"
                 variant="outline"
@@ -303,7 +292,7 @@ export function FooterSnakeGame({
               aria-hidden="true"
               className={cn(
                 "absolute transition-[left,top,background-color] ease-out",
-                gameState.phase === "morphing" ? "duration-300" : "duration-150"
+                gameState.phase === "morphing" ? "duration-300" : "duration-150",
               )}
               data-col={point.x}
               data-row={point.y}
@@ -325,22 +314,19 @@ export function FooterSnakeGame({
         </div>
 
         <div className="flex flex-col items-center gap-3">
-          <p
-            className="max-w-md text-xs leading-6 text-muted-foreground"
-            role="status"
-          >
+          <p className="max-w-md text-xs leading-6 text-muted-foreground" role="status">
             {getStatusCopy(gameState, head)}
           </p>
         </div>
 
         <div className="grid justify-items-center gap-4">
           {showControls ? (
-            <div className="grid w-full max-w-[12rem] justify-items-center gap-2 sm:hidden">
+            <div className="grid w-full max-w-48 justify-items-center gap-2 sm:hidden">
               <Button
                 aria-label="Move up"
                 disabled={!isPlaying}
                 onClick={() => {
-                  queueDirection("up")
+                  queueDirection("up");
                 }}
                 type="button"
                 variant="outline"
@@ -352,7 +338,7 @@ export function FooterSnakeGame({
                   aria-label="Move left"
                   disabled={!isPlaying}
                   onClick={() => {
-                    queueDirection("left")
+                    queueDirection("left");
                   }}
                   type="button"
                   variant="outline"
@@ -363,7 +349,7 @@ export function FooterSnakeGame({
                   aria-label="Move right"
                   disabled={!isPlaying}
                   onClick={() => {
-                    queueDirection("right")
+                    queueDirection("right");
                   }}
                   type="button"
                   variant="outline"
@@ -375,7 +361,7 @@ export function FooterSnakeGame({
                 aria-label="Move down"
                 disabled={!isPlaying}
                 onClick={() => {
-                  queueDirection("down")
+                  queueDirection("down");
                 }}
                 type="button"
                 variant="outline"
@@ -395,15 +381,15 @@ export function FooterSnakeGame({
         </div>
       </div>
     </section>
-  )
+  );
 }
 
 function createPoint(x: number, y: number): Point {
-  return { x, y }
+  return { x, y };
 }
 
 function offsetPoint(point: Point, offset: Point): Point {
-  return createPoint(point.x + offset.x, point.y + offset.y)
+  return createPoint(point.x + offset.x, point.y + offset.y);
 }
 
 function getBoardStyle(theme: EffectiveTheme): CSSProperties {
@@ -417,14 +403,10 @@ function getBoardStyle(theme: EffectiveTheme): CSSProperties {
         ? "linear-gradient(to right, color-mix(in oklab, var(--border) 78%, transparent) 1px, transparent 1px), linear-gradient(to bottom, color-mix(in oklab, var(--border) 78%, transparent) 1px, transparent 1px)"
         : "linear-gradient(to right, color-mix(in oklab, var(--foreground) 10%, transparent) 1px, transparent 1px), linear-gradient(to bottom, color-mix(in oklab, var(--foreground) 10%, transparent) 1px, transparent 1px)",
     backgroundSize: `calc(100% / ${boardColumns}) calc(100% / ${boardRows})`,
-  }
+  };
 }
 
-function getCellStyle(
-  point: Point,
-  isHead: boolean,
-  theme: EffectiveTheme
-): CSSProperties {
+function getCellStyle(point: Point, isHead: boolean, theme: EffectiveTheme): CSSProperties {
   return {
     backgroundColor: isHead
       ? "color-mix(in oklab, var(--primary) 84%, var(--foreground))"
@@ -436,7 +418,7 @@ function getCellStyle(
     left: `calc(${point.x * boardCellWidthPercent}% + 4px)`,
     top: `calc(${point.y * boardCellHeightPercent}% + 4px)`,
     width: `calc(${boardCellWidthPercent}% - 8px)`,
-  }
+  };
 }
 
 function getFoodStyle(point: Point, theme: EffectiveTheme): CSSProperties {
@@ -446,20 +428,20 @@ function getFoodStyle(point: Point, theme: EffectiveTheme): CSSProperties {
       theme === "dark"
         ? "color-mix(in oklab, var(--primary) 68%, white)"
         : "color-mix(in oklab, var(--primary) 38%, var(--foreground))",
-  }
+  };
 }
 
 function getRenderedSnakeCells(gameState: GameState): ReadonlyArray<Point> {
   switch (gameState.phase) {
     case "idle":
-      return idleLogoCells
+      return idleLogoCells;
     case "morphing":
-      return initialSnakeBody
+      return initialSnakeBody;
     case "paused":
     case "playing":
     case "game-over":
     case "won":
-      return gameState.snakeState.snake
+      return gameState.snakeState.snake;
   }
 }
 
@@ -469,15 +451,15 @@ function getRenderedFood(gameState: GameState): Point | null {
     case "playing":
     case "game-over":
     case "won":
-      return gameState.snakeState.food
+      return gameState.snakeState.food;
     case "idle":
     case "morphing":
-      return null
+      return null;
   }
 }
 
 function createPlayingState(random: () => number): PlayingGameState {
-  const food = pickRandomEmptyCell(initialSnakeBody, random)
+  const food = pickRandomEmptyCell(initialSnakeBody, random);
 
   return {
     phase: "playing",
@@ -488,88 +470,82 @@ function createPlayingState(random: () => number): PlayingGameState {
       score: 0,
       snake: initialSnakeBody,
     },
-  }
+  };
 }
 
 export function parseDirectionKey(key: string): Direction | null {
   switch (key) {
     case "ArrowUp":
-      return "up"
+      return "up";
     case "ArrowDown":
-      return "down"
+      return "down";
     case "ArrowLeft":
-      return "left"
+      return "left";
     case "ArrowRight":
-      return "right"
+      return "right";
   }
 
   switch (key.toLowerCase()) {
     case "w":
     case "k":
-      return "up"
+      return "up";
     case "a":
     case "h":
-      return "left"
+      return "left";
     case "s":
     case "j":
-      return "down"
+      return "down";
     case "d":
     case "l":
-      return "right"
+      return "right";
     default:
-      return null
+      return null;
   }
 }
 
 export function getNextHead(head: Point, direction: Direction): Point {
   switch (direction) {
     case "up":
-      return createPoint(head.x, head.y - 1)
+      return createPoint(head.x, head.y - 1);
     case "down":
-      return createPoint(head.x, head.y + 1)
+      return createPoint(head.x, head.y + 1);
     case "left":
-      return createPoint(head.x - 1, head.y)
+      return createPoint(head.x - 1, head.y);
     case "right":
-      return createPoint(head.x + 1, head.y)
+      return createPoint(head.x + 1, head.y);
   }
 }
 
 export function pickRandomEmptyCell(
   occupiedCells: ReadonlyArray<Point>,
-  random: () => number = Math.random
+  random: () => number = Math.random,
 ): Point | null {
-  const emptyCells: Array<Point> = []
+  const emptyCells: Array<Point> = [];
 
   for (let y = 0; y < boardRows; y += 1) {
     for (let x = 0; x < boardColumns; x += 1) {
-      const point = createPoint(x, y)
+      const point = createPoint(x, y);
 
       if (!occupiedCells.some((cell) => pointsEqual(cell, point))) {
-        emptyCells.push(point)
+        emptyCells.push(point);
       }
     }
   }
 
   if (emptyCells.length === 0) {
-    return null
+    return null;
   }
 
-  const selectedIndex = Math.min(
-    emptyCells.length - 1,
-    Math.floor(random() * emptyCells.length)
-  )
+  const selectedIndex = Math.min(emptyCells.length - 1, Math.floor(random() * emptyCells.length));
 
-  return emptyCells[selectedIndex] ?? null
+  return emptyCells[selectedIndex] ?? null;
 }
 
-function queueNextDirection(
-  gameState: GameState,
-  direction: Direction
-): GameState {
+function queueNextDirection(gameState: GameState, direction: Direction): GameState {
   switch (gameState.phase) {
     case "idle":
     case "morphing":
-      return gameState
+      return gameState;
     case "paused":
       return {
         ...gameState,
@@ -577,13 +553,13 @@ function queueNextDirection(
           ...gameState.snakeState,
           pendingDirection: direction,
         },
-      }
+      };
     case "playing":
       if (
         direction === gameState.snakeState.direction ||
         isOppositeDirection(direction, gameState.snakeState.direction)
       ) {
-        return gameState
+        return gameState;
       }
 
       return {
@@ -592,33 +568,30 @@ function queueNextDirection(
           ...gameState.snakeState,
           pendingDirection: direction,
         },
-      }
+      };
     case "game-over":
     case "won":
-      return gameState
+      return gameState;
   }
 }
 
-function advanceGameState(
-  gameState: GameState,
-  random: () => number
-): GameState {
+function advanceGameState(gameState: GameState, random: () => number): GameState {
   if (gameState.phase !== "playing") {
-    return gameState
+    return gameState;
   }
 
-  const { snakeState } = gameState
-  const head = snakeState.snake[0]
+  const { snakeState } = gameState;
+  const head = snakeState.snake[0];
 
   if (!head) {
     return {
       phase: "game-over",
       snakeState,
-    }
+    };
   }
 
-  const nextDirection = snakeState.pendingDirection
-  const nextHead = getNextHead(head, nextDirection)
+  const nextDirection = snakeState.pendingDirection;
+  const nextHead = getNextHead(head, nextDirection);
 
   if (isOutsideBoard(nextHead)) {
     return {
@@ -628,14 +601,13 @@ function advanceGameState(
         direction: nextDirection,
         pendingDirection: nextDirection,
       },
-    }
+    };
   }
 
-  const isEatingFood =
-    snakeState.food !== null && pointsEqual(nextHead, snakeState.food)
+  const isEatingFood = snakeState.food !== null && pointsEqual(nextHead, snakeState.food);
   const bodyToCheck = isEatingFood
     ? snakeState.snake
-    : snakeState.snake.slice(0, snakeState.snake.length - 1)
+    : snakeState.snake.slice(0, snakeState.snake.length - 1);
 
   if (bodyToCheck.some((segment) => pointsEqual(segment, nextHead))) {
     return {
@@ -645,50 +617,48 @@ function advanceGameState(
         direction: nextDirection,
         pendingDirection: nextDirection,
       },
-    }
+    };
   }
 
   const nextSnake = isEatingFood
     ? [nextHead, ...snakeState.snake]
-    : [nextHead, ...snakeState.snake.slice(0, snakeState.snake.length - 1)]
-  const nextFood = isEatingFood
-    ? pickRandomEmptyCell(nextSnake, random)
-    : snakeState.food
+    : [nextHead, ...snakeState.snake.slice(0, snakeState.snake.length - 1)];
+  const nextFood = isEatingFood ? pickRandomEmptyCell(nextSnake, random) : snakeState.food;
   const nextSnakeState: SnakeState = {
     direction: nextDirection,
     food: nextFood,
     pendingDirection: nextDirection,
     score: isEatingFood ? snakeState.score + 1 : snakeState.score,
     snake: nextSnake,
-  }
+  };
 
   if (isEatingFood && nextFood === null) {
     return {
       phase: "won",
       snakeState: nextSnakeState,
-    }
+    };
   }
 
   return {
     phase: "playing",
     snakeState: nextSnakeState,
-  }
+  };
 }
 
 function getStatusCopy(gameState: GameState, head: Point | undefined): string {
   switch (gameState.phase) {
     case "idle":
-      return "Press Play to morph the M into a snake."
+      return "Press Play to morph the M into a snake.";
     case "morphing":
-      return "Building the run..."
+      return "Building the run...";
     case "paused":
-      return `Paused. Score ${gameState.snakeState.score}.`
+      return `Paused. Score ${gameState.snakeState.score}.`;
     case "playing":
-      return `Score ${gameState.snakeState.score}. Head ${formatPoint(head)}.`
+      return `Score ${gameState.snakeState.score}. Head ${formatPoint(head)}.`;
     case "game-over":
-      return `Game over. Score ${gameState.snakeState.score}.`
+      return `Game over. Score ${gameState.snakeState.score}.`;
     case "won":
-      return `Board full. Score ${gameState.snakeState.score}.`
+      return `Board full. Score ${gameState.snakeState.score}.`;
   }
 }
 
@@ -696,45 +666,40 @@ function getScore(gameState: GameState): number {
   switch (gameState.phase) {
     case "idle":
     case "morphing":
-      return 0
+      return 0;
     case "paused":
     case "playing":
     case "game-over":
     case "won":
-      return gameState.snakeState.score
+      return gameState.snakeState.score;
   }
 }
 
 function formatPoint(point: Point | undefined): string {
   if (!point) {
-    return "-,-"
+    return "-,-";
   }
 
-  return `${point.x},${point.y}`
+  return `${point.x},${point.y}`;
 }
 
 function isOutsideBoard(point: Point): boolean {
-  return (
-    point.x < 0 ||
-    point.x >= boardColumns ||
-    point.y < 0 ||
-    point.y >= boardRows
-  )
+  return point.x < 0 || point.x >= boardColumns || point.y < 0 || point.y >= boardRows;
 }
 
 function pointsEqual(left: Point, right: Point): boolean {
-  return left.x === right.x && left.y === right.y
+  return left.x === right.x && left.y === right.y;
 }
 
 function isOppositeDirection(left: Direction, right: Direction): boolean {
   switch (left) {
     case "up":
-      return right === "down"
+      return right === "down";
     case "down":
-      return right === "up"
+      return right === "up";
     case "left":
-      return right === "right"
+      return right === "right";
     case "right":
-      return right === "left"
+      return right === "left";
   }
 }

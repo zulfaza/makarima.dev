@@ -2,6 +2,7 @@ import {
   createBlogPostingJsonLd,
   createPageHead,
   createProjectJsonLd,
+  createRootHeadLinks,
   createSiteLinks,
   createWebsiteJsonLd,
   siteMetadata,
@@ -90,6 +91,28 @@ describe("site metadata", () => {
         rel: "manifest",
         href: "/site.webmanifest",
       },
+    ])
+  })
+
+  test("builds root head links with stylesheet and font preload", () => {
+    expect(
+      createRootHeadLinks({
+        appCssHref: "/assets/styles.css",
+        fontHref: "/assets/geist-mono-latin.woff2",
+      }),
+    ).toEqual([
+      {
+        rel: "stylesheet",
+        href: "/assets/styles.css",
+      },
+      {
+        rel: "preload",
+        href: "/assets/geist-mono-latin.woff2",
+        as: "font",
+        type: "font/woff2",
+        crossOrigin: "anonymous",
+      },
+      ...createSiteLinks(),
     ])
   })
 

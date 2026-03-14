@@ -4,12 +4,13 @@ import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools"
 
 import {
   createPageMeta,
-  createSiteLinks,
+  createRootHeadLinks,
   siteMetadata,
 } from "@/lib/site-metadata"
 import { themeBootScript } from "@/lib/theme"
 
 import appCss from "../styles.css?url"
+import geistMonoLatinFont from "@fontsource-variable/geist-mono/files/geist-mono-latin-wght-normal.woff2?url"
 
 export const Route = createRootRoute({
   head: () => ({
@@ -29,13 +30,10 @@ export const Route = createRootRoute({
         path: "/",
       }),
     ],
-    links: [
-      {
-        rel: "stylesheet",
-        href: appCss,
-      },
-      ...createSiteLinks(),
-    ],
+    links: createRootHeadLinks({
+      appCssHref: appCss,
+      fontHref: geistMonoLatinFont,
+    }),
   }),
   shellComponent: RootDocument,
 })

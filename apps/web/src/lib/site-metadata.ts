@@ -226,6 +226,29 @@ export function createSiteLinks(): ReadonlyArray<RouteLinkEntry> {
   ]
 }
 
+export function createRootHeadLinks({
+  appCssHref,
+  fontHref,
+}: {
+  readonly appCssHref: string
+  readonly fontHref: string
+}): Array<RouteLinkEntry> {
+  return [
+    {
+      rel: "stylesheet",
+      href: appCssHref,
+    },
+    {
+      rel: "preload",
+      href: fontHref,
+      as: "font",
+      type: "font/woff2",
+      crossOrigin: "anonymous",
+    },
+    ...createSiteLinks(),
+  ]
+}
+
 export function createPageHead(
   page: PageMetadata & { readonly jsonLd?: ReadonlyArray<JsonLdObject> }
 ){
