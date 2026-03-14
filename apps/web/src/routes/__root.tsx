@@ -12,6 +12,15 @@ import { themeBootScript } from "@/lib/theme"
 import appCss from "../styles.css?url"
 import geistMonoLatinFont from "@fontsource-variable/geist-mono/files/geist-mono-latin-wght-normal.woff2?url"
 
+const googleTagId = "G-TXF9TQ8FWX"
+const googleTagScriptSrc = `https://www.googletagmanager.com/gtag/js?id=${googleTagId}`
+const googleTagBootScript = `
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', '${googleTagId}');
+`
+
 export const Route = createRootRoute({
   head: () => ({
     meta: [
@@ -42,6 +51,8 @@ function RootDocument({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <script async src={googleTagScriptSrc} />
+        <script>{googleTagBootScript}</script>
         <script>{themeBootScript}</script>
         <HeadContent />
       </head>
