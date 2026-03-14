@@ -50,6 +50,11 @@ function ProjectRouteComponent() {
 }
 
 export function ProjectDetailPage({ entry }: { entry: ProjectEntry }) {
+  const trackedProjectHref =
+    entry.access.kind === "external"
+      ? createTrackedProjectHref(entry.access.href, entry.slug)
+      : null
+
   return (
     <SiteFrame>
       <header className="border-b border-border/80">
@@ -89,7 +94,7 @@ export function ProjectDetailPage({ entry }: { entry: ProjectEntry }) {
             {entry.access.kind === "external" ? (
               <a
                 className={buttonVariants({ size: "sm", variant: "outline" })}
-                href={entry.access.href}
+                href={trackedProjectHref}
                 rel="noreferrer"
                 target="_blank"
               >
@@ -104,4 +109,14 @@ export function ProjectDetailPage({ entry }: { entry: ProjectEntry }) {
       <DetailContent blocks={entry.body} />
     </SiteFrame>
   )
+}
+
+function createTrackedProjectHref(href: string, slug: string) {
+  const url = new URL(href)
+
+  url.searchParams.set("utm_source", "makarima.dev")
+  url.searchParams.set("utm_medium", "project_page")
+  url.searchParams.set("utm_campaign", slug)
+
+  return url.toString()
 }
