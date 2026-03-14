@@ -1,7 +1,7 @@
 import { readdirSync, readFileSync } from "node:fs"
 import { fileURLToPath } from "node:url"
 
-import matter from "gray-matter"
+import { parseFrontmatter } from "../content/frontmatter"
 
 import { siteMetadata } from "./site-metadata"
 
@@ -16,6 +16,9 @@ type SitemapChangeFrequency =
 
 type SitemapPage = {
   readonly path: string
+  readonly prerender?: {
+    readonly enabled?: boolean
+  }
   readonly sitemap?: {
     readonly changefreq?: SitemapChangeFrequency
     readonly lastmod?: string
@@ -64,7 +67,7 @@ function readSlug(fileName: string, context: string) {
 }
 
 function readPublishedAt(source: string, context: string) {
-  const data: unknown = matter(source).data
+  const data: unknown = parseFrontmatter(source, context).data
 
   if (!isRecord(data)) {
     fail(context, "Expected frontmatter object")
@@ -113,6 +116,9 @@ function getBlogPages(directory: string): Array<SitemapPage> {
 
     return {
       path: `/blogs/${slug}`,
+      prerender: {
+        enabled: true,
+      },
       sitemap: {
         changefreq: "monthly",
         lastmod: readPublishedAt(source, context),
@@ -129,6 +135,9 @@ function getProjectPages(directory: string): Array<SitemapPage> {
 
     return {
       path: `/projects/${slug}`,
+      prerender: {
+        enabled: true,
+      },
       sitemap: {
         changefreq: "monthly",
         priority: 0.7,
@@ -149,6 +158,9 @@ export function getSitemapPages(
   return [
     {
       path: "/",
+      prerender: {
+        enabled: true,
+      },
       sitemap: {
         changefreq: "weekly",
         priority: 1,

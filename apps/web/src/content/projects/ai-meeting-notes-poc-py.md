@@ -10,6 +10,7 @@ stack:
 status: active
 accessHref: https://github.com/zulfaza/ai-meeting-notes-poc-py
 accessLabel: View source
+faviconHref: /images/ai-meeting-notes-poc-py/favicon.svg
 ---
 
 This project explores a narrow but useful workflow: start with a recorded meeting video and end with notes that are easier to scan than the raw conversation. The CLI extracts audio, runs transcription, identifies speaker turns, and writes a summary plus intermediate artifacts to an output folder.

@@ -1,6 +1,6 @@
-import matter from "gray-matter";
 import { fromMarkdown } from "mdast-util-from-markdown";
 
+import { parseFrontmatter } from "@/content/frontmatter";
 import type { BlogEntry, CodeLanguage, ContentBlock, ProjectEntry } from "@/content/site";
 
 type MarkdownRoot = ReturnType<typeof fromMarkdown>;
@@ -87,6 +87,26 @@ function parseHttpUrl(value: string, field: string, context: string) {
   return url.toString();
 }
 
+function parseProjectFaviconHref(value: string, context: string) {
+  if (value.startsWith("//")) {
+    fail(context, 'Expected "faviconHref" to be a root-relative path or http/https URL');
+  }
+
+  if (value.startsWith("/")) {
+    return value;
+  }
+
+  if (/^[a-zA-Z][a-zA-Z\d+\-.]*:/.test(value)) {
+    try {
+      return parseHttpUrl(value, "faviconHref", context);
+    } catch {
+      fail(context, 'Expected "faviconHref" to be a root-relative path or http/https URL');
+    }
+  }
+
+  fail(context, 'Expected "faviconHref" to be a root-relative path or http/https URL');
+}
+
 function readPublishedAt(data: Record<string, unknown>, context: string): BlogEntry["publishedAt"] {
   const rawValue = data.publishedAt;
 
@@ -146,8 +166,7 @@ function buildProjectFaviconHref(href: string) {
 }
 
 function parseBlogFrontmatter(source: string, context: string): ParsedBlogFrontmatter {
-  const parsed = matter(source);
-  const data: unknown = parsed.data;
+  const data: unknown = parseFrontmatter(source, context).data;
 
   if (!isRecord(data)) {
     fail(context, "Expected frontmatter object");
@@ -162,8 +181,7 @@ function parseBlogFrontmatter(source: string, context: string): ParsedBlogFrontm
 }
 
 function parseProjectFrontmatter(source: string, context: string): ParsedProjectFrontmatter {
-  const parsed = matter(source);
-  const data: unknown = parsed.data;
+  const data: unknown = parseFrontmatter(source, context).data;
 
   if (!isRecord(data)) {
     fail(context, "Expected frontmatter object");
@@ -192,7 +210,7 @@ function parseProjectFrontmatter(source: string, context: string): ParsedProject
   return {
     faviconHref:
       faviconHref !== undefined
-        ? parseHttpUrl(faviconHref, "faviconHref", context)
+        ? parseProjectFaviconHref(faviconHref, context)
         : access.kind === "external"
           ? buildProjectFaviconHref(access.href)
           : undefined,
@@ -349,7 +367,7 @@ function parseMermaidBlock(
 }
 
 export function parseMarkdownBody(source: string, context: string): ReadonlyArray<ContentBlock> {
-  const parsed = matter(source);
+  const parsed = parseFrontmatter(source, context);
   const content = parsed.content.startsWith("\n") ? parsed.content.slice(1) : parsed.content;
   const tree = fromMarkdown(content);
   const blocks: Array<ContentBlock> = [];

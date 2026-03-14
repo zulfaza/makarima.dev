@@ -2,6 +2,51 @@ import { loadBlogs, loadProjects } from "@/content/site";
 import { parseBlogMarkdown, parseProjectMarkdown } from "@/content/markdown";
 
 describe("content markdown", () => {
+  test("treats markdown without frontmatter as missing required frontmatter", () => {
+    expect(() =>
+      parseBlogMarkdown(
+        "no-frontmatter",
+        `Paragraph only.
+`,
+      ),
+    ).toThrowError(
+      '[content:blog:no-frontmatter] Expected "title" to be a non-empty string',
+    );
+  });
+
+  test("fails on malformed YAML frontmatter", () => {
+    expect(() =>
+      parseBlogMarkdown(
+        "bad-yaml",
+        `---
+title: Sample Blog
+tags:
+  - one
+  broken
+---
+
+Body.
+`,
+      ),
+    ).toThrowError('[frontmatter:blog:bad-yaml]');
+  });
+
+  test("parses frontmatter-only markdown into an empty body", () => {
+    const entry = parseBlogMarkdown(
+      "frontmatter-only",
+      `---
+title: Sample Blog
+summary: Sample summary
+publishedAt: "2026-03-01"
+tags:
+  - one
+---
+`,
+    );
+
+    expect(entry.body).toEqual([]);
+  });
+
   test("parses a blog entry into the public route shape", () => {
     const entry = parseBlogMarkdown(
       "sample-blog",
@@ -116,14 +161,34 @@ stack:
   - TypeScript
 status: active
 accessHref: https://example.com/project
-faviconHref: https://assets.example.com/favicon.ico
+faviconHref: /images/sample/favicon.ico
 ---
 
 Project paragraph.
 `,
     );
 
-    expect(entry.faviconHref).toBe("https://assets.example.com/favicon.ico");
+    expect(entry.faviconHref).toBe("/images/sample/favicon.ico");
+  });
+
+  test("parses local project favicon paths", () => {
+    const entry = parseProjectMarkdown(
+      "sample-project-local-favicon",
+      `---
+name: Sample Project Local Favicon
+summary: Sample project summary
+year: 2025
+stack:
+  - TypeScript
+status: active
+faviconHref: /images/sample/favicon.ico
+---
+
+Project paragraph.
+`,
+    );
+
+    expect(entry.faviconHref).toBe("/images/sample/favicon.ico");
   });
 
   test("fails on missing required frontmatter", () => {
@@ -220,7 +285,29 @@ Body.
 `,
       ),
     ).toThrowError(
-      '[content:project:bad-favicon-href] Expected "faviconHref" to use http or https',
+      '[content:project:bad-favicon-href] Expected "faviconHref" to be a root-relative path or http/https URL',
+    );
+  });
+
+  test("fails on non-root-relative project favicon paths", () => {
+    expect(() =>
+      parseProjectMarkdown(
+        "bad-favicon-path",
+        `---
+name: Bad Favicon Path
+summary: Invalid favicon path
+year: 2025
+stack:
+  - TypeScript
+status: active
+faviconHref: images/sample/favicon.ico
+---
+
+Body.
+`,
+      ),
+    ).toThrowError(
+      '[content:project:bad-favicon-path] Expected "faviconHref" to be a root-relative path or http/https URL',
     );
   });
 

@@ -90,6 +90,9 @@ status: archived
     ).toEqual([
       {
         path: "/",
+        prerender: {
+          enabled: true,
+        },
         sitemap: {
           changefreq: "weekly",
           priority: 1,
@@ -97,6 +100,9 @@ status: archived
       },
       {
         path: "/blogs/hello-world",
+        prerender: {
+          enabled: true,
+        },
         sitemap: {
           changefreq: "monthly",
           lastmod: "2026-03-01",
@@ -105,6 +111,9 @@ status: archived
       },
       {
         path: "/blogs/zebra-notes",
+        prerender: {
+          enabled: true,
+        },
         sitemap: {
           changefreq: "monthly",
           lastmod: "2026-03-04",
@@ -113,6 +122,9 @@ status: archived
       },
       {
         path: "/projects/alpha",
+        prerender: {
+          enabled: true,
+        },
         sitemap: {
           changefreq: "monthly",
           priority: 0.7,
@@ -120,6 +132,9 @@ status: archived
       },
       {
         path: "/projects/omega",
+        prerender: {
+          enabled: true,
+        },
         sitemap: {
           changefreq: "monthly",
           priority: 0.7,
@@ -151,5 +166,51 @@ tags:
     ).toThrowError(
       '[sitemap:blogs/broken.md] Expected "publishedAt" to use YYYY-MM-DD'
     )
+  })
+
+  it("rejects malformed YAML frontmatter", () => {
+    const { blogsDirectory, projectsDirectory } = createCollectionDirectories()
+
+    writeFileSync(
+      path.join(blogsDirectory, "broken-yaml.md"),
+      `---
+title: Broken
+summary: Broken post
+publishedAt:
+  - "2026-03-09"
+tags:
+  - broken
+---
+`
+    )
+
+    expect(() =>
+      getSitemapPages({
+        blogsDirectory,
+        projectsDirectory,
+      })
+    ).toThrowError('[sitemap:blogs/broken-yaml.md] Expected "publishedAt" to be a non-empty string')
+  })
+
+  it("returns the prerendered root page when content collections are empty", () => {
+    const { blogsDirectory, projectsDirectory } = createCollectionDirectories()
+
+    expect(
+      getSitemapPages({
+        blogsDirectory,
+        projectsDirectory,
+      })
+    ).toEqual([
+      {
+        path: "/",
+        prerender: {
+          enabled: true,
+        },
+        sitemap: {
+          changefreq: "weekly",
+          priority: 1,
+        },
+      },
+    ])
   })
 })

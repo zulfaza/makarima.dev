@@ -12,7 +12,7 @@ stack:
 status: active
 accessHref: https://gitflex.xyz/
 accessLabel: Open project
-faviconHref: https://gitflex.xyz/favicon.ico
+faviconHref: /images/git-flex/favicon.ico
 ---
 
 GitFlex started from a simple frustration: GitHub contribution graphs are useful, but the default presentation is rigid and not especially friendly for portfolios or personal sites. This project turns that graph into something you can restyle, resize, and export without recreating it by hand.

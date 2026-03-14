@@ -1,5 +1,3 @@
-import { createServerFn } from "@tanstack/react-start";
-
 import { parseBlogMarkdown, parseProjectMarkdown } from "@/content/markdown";
 
 const blogDateFormatter = new Intl.DateTimeFormat("en", {
@@ -152,22 +150,6 @@ export function loadProjects() {
     .map(([path, source]) => parseProjectMarkdown(readSlug(path, "projects"), source))
     .sort(compareProjects);
 }
-
-export const getBlogs = createServerFn({ method: "GET" }).handler(async () => loadBlogs());
-
-export const getProjects = createServerFn({ method: "GET" }).handler(async () => loadProjects());
-
-export const getBlogBySlug = createServerFn({ method: "GET" })
-  .inputValidator((slug: string) => slug)
-  .handler(async ({ data: slug }) => {
-    return loadBlogs().find((entry) => entry.slug === slug) ?? null;
-  });
-
-export const getProjectBySlug = createServerFn({ method: "GET" })
-  .inputValidator((slug: string) => slug)
-  .handler(async ({ data: slug }) => {
-    return loadProjects().find((project) => project.slug === slug) ?? null;
-  });
 
 export function findBlogBySlug(slug: string) {
   return loadBlogs().find((entry) => entry.slug === slug);

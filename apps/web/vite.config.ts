@@ -32,6 +32,12 @@ const config = defineConfig({
     cloudflare({ viteEnvironment: { name: "ssr" } }),
     tanstackStart({
       pages: getSitemapPages(),
+      prerender: {
+        enabled: true,
+        autoStaticPathsDiscovery: true,
+        crawlLinks: true,
+        failOnError: true,
+      },
       sitemap: {
         host: sitemapHost,
       },

@@ -12,6 +12,7 @@ stack:
 status: active
 accessHref: https://jwt.makarima.dev/
 accessLabel: Open project
+faviconHref: /images/jwt-debugger/favicon.ico
 ---
 
 JWT Debugger is a small utility for the repetitive work around JSON Web Tokens: inspect the header and payload, change claims, re-sign the token, and confirm whether the signature still matches. Instead of jumping between snippets, docs, and ad hoc scripts, the workflow stays in one browser tab.
