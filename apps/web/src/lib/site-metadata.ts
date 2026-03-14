@@ -75,6 +75,7 @@ export const siteMetadata = {
     path: "/og.png",
     width: 1200,
   },
+  logoPath: "/favicon.png",
 } as const
 
 function getPageTitle(title?: string) {
@@ -108,6 +109,7 @@ export function createPageMeta({
   const pageKeywords = getPageKeywords(keywords)
   const pageUrl = getAbsoluteSiteUrl(path)
   const imageUrl = getAbsoluteSiteUrl(siteMetadata.ogImage.path)
+  const logoUrl = getAbsoluteSiteUrl(siteMetadata.logoPath)
   const meta: Array<PageMetaTag> = [
     {
       title: pageTitle,
@@ -155,6 +157,10 @@ export function createPageMeta({
     {
       property: "og:image",
       content: imageUrl,
+    },
+    {
+      property: "og:logo",
+      content: logoUrl,
     },
     {
       property: "og:image:alt",

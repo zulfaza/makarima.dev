@@ -55,6 +55,10 @@ describe("site metadata", () => {
       content: "https://makarima.dev/og.png",
     })
     expect(head.meta).toContainEqual({
+      property: "og:logo",
+      content: "https://makarima.dev/favicon.png",
+    })
+    expect(head.meta).toContainEqual({
       name: "twitter:image",
       content: "https://makarima.dev/og.png",
     })
