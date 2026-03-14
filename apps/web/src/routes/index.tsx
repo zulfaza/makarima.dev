@@ -11,11 +11,7 @@ import {
 } from "@/components/site-frame"
 import { Badge } from "@/components/ui/badge"
 import { buttonVariants } from "@/components/ui/button"
-import {
-  formatBlogDate,
-  getBlogs,
-  getProjects,
-} from "@/content/site"
+import { formatBlogDate, loadBlogs, loadProjects } from "@/content/site"
 import type { BlogEntry, ProjectEntry } from "@/content/site"
 import {
   createPageHead,
@@ -25,7 +21,7 @@ import {
 
 export const Route = createFileRoute("/")({
   loader: async () => {
-    const [blogs, projects] = await Promise.all([getBlogs(), getProjects()])
+    const [blogs, projects] = await Promise.all([loadBlogs(), loadProjects()])
     return { blogs, projects }
   },
   head: () =>

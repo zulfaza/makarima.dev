@@ -11,14 +11,14 @@ import {
 } from "@/components/site-frame"
 import { Badge } from "@/components/ui/badge"
 import { buttonVariants } from "@/components/ui/button"
-import { findProjectBySlug, getProjectBySlug } from "@/content/site"
+import { findProjectBySlug } from "@/content/site"
 import { createPageHead, createProjectJsonLd } from "@/lib/site-metadata"
 
 import type { ProjectEntry } from "@/content/site"
 
 export const Route = createFileRoute("/projects/$slug")({
   loader: async ({ params }) => {
-    const entry = await getProjectBySlug({ data: params.slug })
+    const entry = findProjectBySlug(params.slug)
     if (!entry) throw notFound()
     return entry
   },

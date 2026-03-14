@@ -7,14 +7,14 @@ import {
   siteMetaClassName,
 } from "@/components/site-frame"
 import { Badge } from "@/components/ui/badge"
-import { findBlogBySlug, formatBlogDate, getBlogBySlug } from "@/content/site"
+import { findBlogBySlug, formatBlogDate } from "@/content/site"
 import { createBlogPostingJsonLd, createPageHead } from "@/lib/site-metadata"
 
 import type { BlogEntry } from "@/content/site"
 
 export const Route = createFileRoute("/blogs/$slug")({
   loader: async ({ params }) => {
-    const entry = await getBlogBySlug({ data: params.slug })
+    const entry = findBlogBySlug(params.slug)
     if (!entry) throw notFound()
     return entry
   },
