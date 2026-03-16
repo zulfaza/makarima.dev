@@ -163,12 +163,12 @@ export const socials: ReadonlyArray<SocialLink> = [
   {
     kind: "github",
     label: "GitHub",
-    href: "https://github.com/zulfaza",
+    href: "/github",
   },
   {
     kind: "linkedin",
     label: "LinkedIn",
-    href: "https://www.linkedin.com/in/zul-faza-makarima/",
+    href: "/linkedin",
   },
 ] as const;
 
