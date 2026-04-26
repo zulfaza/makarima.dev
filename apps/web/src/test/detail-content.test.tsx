@@ -1,27 +1,11 @@
-import { act, render, screen, waitFor } from "@testing-library/react";
-import { afterEach, describe, expect, test, vi } from "vitest";
+import { act, render, screen, waitFor } from "@testing-library/react"
+import { describe, expect, test } from "vitest"
 
-import { DetailContent } from "@/components/detail-content";
-import { setMatchMediaMatches } from "@/test/setup";
-
-const mermaidMock = vi.hoisted(() => ({
-  initialize: vi.fn(),
-  render: vi.fn(async (id: string, code: string) => ({
-    svg: `<svg data-render-id="${id}"><desc>${code}</desc></svg>`,
-  })),
-}));
-
-vi.mock("mermaid", () => ({
-  default: mermaidMock,
-}));
-
-afterEach(() => {
-  mermaidMock.initialize.mockClear();
-  mermaidMock.render.mockClear();
-});
+import { DetailContent } from "@/components/detail-content"
+import { setMatchMediaMatches } from "@/test/setup"
 
 describe("DetailContent", () => {
-  test("renders a mermaid block with theme-aware svg output", async () => {
+  test("renders a flowchart block as svg output", async () => {
     render(
       <DetailContent
         blocks={[
@@ -32,31 +16,23 @@ describe("DetailContent", () => {
             caption: "Request lifecycle",
           },
         ]}
-      />,
-    );
+      />
+    )
 
-    expect(screen.getByText("Sample flow")).toBeTruthy();
-    expect(screen.getByText("Request lifecycle")).toBeTruthy();
-    expect(screen.getByText("Rendering diagram...")).toBeTruthy();
+    expect(screen.getByText("Sample flow")).toBeTruthy()
+    expect(screen.getByText("Request lifecycle")).toBeTruthy()
+    expect(screen.getByText("Rendering diagram...")).toBeTruthy()
 
     await waitFor(() => {
-      expect(screen.getByTestId("mermaid-diagram").querySelector("svg")).not.toBeNull();
-    });
+      expect(
+        screen.getByTestId("mermaid-diagram").querySelector("svg")
+      ).not.toBeNull()
+    })
+    expect(screen.getByText("Start")).toBeTruthy()
+    expect(screen.getByText("Done")).toBeTruthy()
+  })
 
-    expect(mermaidMock.initialize).toHaveBeenLastCalledWith(
-      expect.objectContaining({
-        securityLevel: "strict",
-        startOnLoad: false,
-        theme: "default",
-      }),
-    );
-    expect(mermaidMock.render).toHaveBeenCalledWith(
-      expect.stringContaining("mermaid-"),
-      "flowchart TD\n  A[Start] --> B[Done]",
-    );
-  });
-
-  test("rerenders mermaid when effective theme changes", async () => {
+  test("keeps flowchart rendered when effective theme changes", async () => {
     render(
       <DetailContent
         blocks={[
@@ -65,45 +41,46 @@ describe("DetailContent", () => {
             code: "flowchart LR\n  A --> B",
           },
         ]}
-      />,
-    );
+      />
+    )
 
     await waitFor(() => {
-      expect(mermaidMock.render).toHaveBeenCalledTimes(1);
-    });
+      expect(
+        screen.getByTestId("mermaid-diagram").querySelector("svg")
+      ).not.toBeNull()
+    })
 
     act(() => {
-      setMatchMediaMatches(true);
-    });
+      setMatchMediaMatches(true)
+    })
 
     await waitFor(() => {
-      expect(mermaidMock.initialize).toHaveBeenLastCalledWith(
-        expect.objectContaining({
-          theme: "dark",
-        }),
-      );
-    });
-    expect(mermaidMock.render).toHaveBeenCalledTimes(2);
-  });
+      expect(
+        screen.getByTestId("mermaid-diagram").querySelector("svg")
+      ).not.toBeNull()
+    })
+  })
 
-  test("falls back to raw mermaid source when rendering fails", async () => {
-    mermaidMock.render.mockRejectedValueOnce(new Error("Parse failed"));
-
+  test("falls back to raw mermaid source for unsupported diagrams", async () => {
     render(
       <DetailContent
         blocks={[
           {
             kind: "mermaid",
-            code: "flowchart TD\n  A --> B",
+            code: "sequenceDiagram\n  A->>B: Hello",
           },
         ]}
-      />,
-    );
+      />
+    )
 
-    expect(await screen.findByText("Unable to render diagram.")).toBeTruthy();
-    expect(screen.getByText("Parse failed")).toBeTruthy();
+    expect(await screen.findByText("Unable to render diagram.")).toBeTruthy()
     expect(
-      screen.getByText((_, node) => node?.textContent === "flowchart TD\n  A --> B"),
-    ).toBeTruthy();
-  });
-});
+      screen.getByText("Only flowchart TD/LR diagrams are supported")
+    ).toBeTruthy()
+    expect(
+      screen.getByText(
+        (_, node) => node?.textContent === "sequenceDiagram\n  A->>B: Hello"
+      )
+    ).toBeTruthy()
+  })
+})

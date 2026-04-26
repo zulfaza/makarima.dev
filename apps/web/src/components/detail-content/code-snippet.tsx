@@ -1,51 +1,81 @@
-import ShikiHighlighter, { createJavaScriptRegexEngine } from "react-shiki";
+import { Check, Copy } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
+import ShikiHighlighter, {
+  createHighlighterCore,
+  createJavaScriptRegexEngine,
+} from "react-shiki/core"
 
-import { Check, Copy } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { Button } from "@/components/ui/button"
+import { useEffectiveTheme } from "@/lib/theme"
 
-import { Button } from "@/components/ui/button";
+import type { CodeBlock } from "./types"
 
-import type { CodeBlock } from "./types";
-import { useEffectiveTheme } from "@/lib/theme";
-
-const jsEngine = createJavaScriptRegexEngine({ forgiving: true });
+const jsEngine = createJavaScriptRegexEngine({ forgiving: true })
+const shikiHighlighter = createHighlighterCore({
+  engine: jsEngine,
+  langs: [
+    import("@shikijs/langs/bash"),
+    import("@shikijs/langs/json"),
+    import("@shikijs/langs/typescript"),
+    import("@shikijs/langs/tsx"),
+  ],
+  themes: [
+    import("@shikijs/themes/dark-plus"),
+    import("@shikijs/themes/light-plus"),
+  ],
+})
+type ShikiHighlighterInstance = Awaited<typeof shikiHighlighter>
 
 const shikiLanguageByCodeLanguage: Record<CodeBlock["language"], string> = {
   bash: "bash",
   json: "json",
   ts: "typescript",
   tsx: "tsx",
-};
+}
 
 export function CodeSnippet({ block }: { block: CodeBlock }) {
-  const theme = useEffectiveTheme();
-  const [copyState, setCopyState] = useState<"copied" | "failed" | "idle">("idle");
-  const isCopied = copyState === "copied";
-  const timeoutId = useRef<number | null>(null);
+  const theme = useEffectiveTheme()
+  const [highlighter, setHighlighter] =
+    useState<ShikiHighlighterInstance | null>(null)
+  const [copyState, setCopyState] = useState<"copied" | "failed" | "idle">(
+    "idle"
+  )
+  const isCopied = copyState === "copied"
+  const timeoutId = useRef<number | null>(null)
 
   useEffect(() => {
-    return () => {
-      if (timeoutId.current !== null) {
-        window.clearTimeout(timeoutId.current);
+    let isActive = true
+
+    void shikiHighlighter.then((loadedHighlighter) => {
+      if (isActive) {
+        setHighlighter(loadedHighlighter)
       }
-    };
-  }, []);
+    })
+
+    return () => {
+      isActive = false
+
+      if (timeoutId.current !== null) {
+        window.clearTimeout(timeoutId.current)
+      }
+    }
+  }, [])
 
   async function handleCopyCode() {
     try {
-      await navigator.clipboard.writeText(block.code);
+      await navigator.clipboard.writeText(block.code)
 
       if (timeoutId.current !== null) {
-        window.clearTimeout(timeoutId.current);
+        window.clearTimeout(timeoutId.current)
       }
 
-      setCopyState("copied");
+      setCopyState("copied")
       timeoutId.current = window.setTimeout(() => {
-        setCopyState("idle");
-        timeoutId.current = null;
-      }, 2000);
+        setCopyState("idle")
+        timeoutId.current = null
+      }, 2000)
     } catch {
-      setCopyState("failed");
+      setCopyState("failed")
     }
   }
 
@@ -75,12 +105,18 @@ export function CodeSnippet({ block }: { block: CodeBlock }) {
                   : `Copy code: ${block.title ?? block.language}`
             }
             size="icon-xs"
-            title={isCopied ? "Copied" : copyState === "failed" ? "Retry copy" : "Copy code"}
+            title={
+              isCopied
+                ? "Copied"
+                : copyState === "failed"
+                  ? "Retry copy"
+                  : "Copy code"
+            }
             variant="outline"
             data-status={copyState}
-            className="relative overflow-hidden transition-[background-color,border-color,color,box-shadow,transform] duration-200 ease-out data-[status='copied']:border-emerald-500/40 data-[status='copied']:bg-emerald-500/10 data-[status='copied']:text-emerald-700 hover:scale-[1.02] dark:data-[status='copied']:border-emerald-400/40 dark:data-[status='copied']:bg-emerald-400/12 dark:data-[status='copied']:text-emerald-300"
+            className="relative overflow-hidden transition-[background-color,border-color,color,box-shadow,transform] duration-200 ease-out hover:scale-[1.02] data-[status='copied']:border-emerald-500/40 data-[status='copied']:bg-emerald-500/10 data-[status='copied']:text-emerald-700 dark:data-[status='copied']:border-emerald-400/40 dark:data-[status='copied']:bg-emerald-400/12 dark:data-[status='copied']:text-emerald-300"
             onClick={() => {
-              void handleCopyCode();
+              void handleCopyCode()
             }}
           >
             <span className="relative block size-3">
@@ -99,18 +135,24 @@ export function CodeSnippet({ block }: { block: CodeBlock }) {
         </div>
       </div>
       <div className="overflow-x-auto">
-        <ShikiHighlighter
-          className="shiki-code [&_pre]:m-0 min-w-full text-[13px] leading-6 [&>pre]:rounded-none!"
-          engine={jsEngine}
-          language={shikiLanguageByCodeLanguage[block.language]}
-          showLanguage={false}
-          showLineNumbers
-          theme={{ dark: "dark-plus", light: "light-plus" }}
-          defaultColor={theme}
-        >
-          {block.code}
-        </ShikiHighlighter>
+        {highlighter === null ? (
+          <pre className="m-0 min-w-full px-4 py-4 text-[13px] leading-6">
+            <code>{block.code}</code>
+          </pre>
+        ) : (
+          <ShikiHighlighter
+            className="shiki-code min-w-full text-[13px] leading-6 [&_pre]:m-0 [&>pre]:rounded-none!"
+            highlighter={highlighter}
+            language={shikiLanguageByCodeLanguage[block.language]}
+            showLanguage={false}
+            showLineNumbers
+            theme={{ dark: "dark-plus", light: "light-plus" }}
+            defaultColor={theme}
+          >
+            {block.code}
+          </ShikiHighlighter>
+        )}
       </div>
     </figure>
-  );
+  )
 }

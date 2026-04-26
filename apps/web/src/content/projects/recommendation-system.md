@@ -19,7 +19,7 @@ This project started as a practical checkout problem: suggest products a custome
 
 The implementation is deliberately artifact-based. Mongo exports are normalized into typed order lines and sellable catalog products, then offline scripts build baseline, product-similarity, and customer-profile artifacts. At runtime, the API loads those artifacts once, validates each checkout request, filters out ineligible products, scores candidates, hydrates product cards, and logs impression events for later evaluation.
 
-```mermaid title="Code flow" caption="Offline artifacts keep serving fast while leaving the ranking logic measurable." scale="10"
+```mermaid title="Code flow" caption="Offline artifacts keep serving fast while leaving the ranking logic measurable."
 flowchart TD
   Orders[Mongo order exports] --> Lines[parseRawOrderLines]
   Products[Mongo product exports] --> Catalog[parseRawProducts]

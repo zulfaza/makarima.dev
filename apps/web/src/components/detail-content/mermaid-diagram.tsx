@@ -1,145 +1,128 @@
-import { Maximize2 } from "lucide-react";
-import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { Maximize2 } from "lucide-react"
+import { useCallback, useEffect, useRef, useState } from "react"
 
-import { Button } from "@/components/ui/button";
-import { useEffectiveTheme } from "@/lib/theme";
+import { Button } from "@/components/ui/button"
+import { useEffectiveTheme } from "@/lib/theme"
 
-import type { MermaidBlock } from "./types";
-import type mermaid from "mermaid";
+import { renderFlowchartSvg } from "./flowchart-svg"
 
-type MermaidRenderer = typeof mermaid;
-type MermaidTheme = "dark" | "default";
+import type { MermaidBlock } from "./types"
+
+type MermaidTheme = "dark" | "default"
 type MermaidRenderState =
   | {
-      readonly status: "loading";
+      readonly status: "loading"
     }
   | {
-      readonly status: "failed";
-      readonly message: string;
+      readonly status: "failed"
+      readonly message: string
     }
   | {
-      readonly status: "ready";
-      readonly svg: string;
-    };
+      readonly status: "ready"
+      readonly svg: string
+    }
 
-let mermaidRendererPromise: Promise<MermaidRenderer> | null = null;
-
-function loadMermaidRenderer() {
-  mermaidRendererPromise ??= import("mermaid").then((module) => module.default);
-
-  return mermaidRendererPromise;
-}
-
-export function MermaidDiagram({ block, onExpand }: { block: MermaidBlock; onExpand: (svg: string) => void }) {
-  const theme = useEffectiveTheme();
-  const blockId = useId().replaceAll(":", "-");
-  const renderAttempt = useRef(0);
-  const diagramRef = useRef<HTMLDivElement | null>(null);
+export function MermaidDiagram({
+  block,
+  onExpand,
+}: {
+  block: MermaidBlock
+  onExpand: (svg: string) => void
+}) {
+  const theme = useEffectiveTheme()
+  const renderAttempt = useRef(0)
+  const diagramRef = useRef<HTMLDivElement | null>(null)
   const [renderState, setRenderState] = useState<MermaidRenderState>({
     status: "loading",
-  });
-  const mermaidTheme: MermaidTheme = theme === "dark" ? "dark" : "default";
+  })
+  const mermaidTheme: MermaidTheme = theme === "dark" ? "dark" : "default"
   const handleExpand = useCallback(() => {
     if (renderState.status === "ready") {
-      onExpand(renderState.svg);
+      onExpand(renderState.svg)
     }
-  }, [onExpand, renderState]);
+  }, [onExpand, renderState])
 
   useEffect(() => {
-    let isActive = true;
+    let isActive = true
 
-    renderAttempt.current += 1;
-    const currentAttempt = renderAttempt.current;
+    renderAttempt.current += 1
+    const currentAttempt = renderAttempt.current
 
     setRenderState({
       status: "loading",
-    });
+    })
+    const result = renderFlowchartSvg(block.code)
 
-    void loadMermaidRenderer()
-      .then(async (mermaid) => {
-        mermaid.initialize({
-          startOnLoad: false,
-          securityLevel: "strict",
-          theme: mermaidTheme,
-        });
+    window.requestAnimationFrame(() => {
+      if (!isActive || renderAttempt.current !== currentAttempt) {
+        return
+      }
 
-        const result = await mermaid.render(`mermaid-${blockId}-${currentAttempt}`, block.code);
-
-        if (!isActive || renderAttempt.current !== currentAttempt) {
-          return;
-        }
-
+      if (result.status === "ok") {
         setRenderState({
           status: "ready",
           svg: result.svg,
-        });
-      })
-      .catch((error: unknown) => {
-        if (!isActive || renderAttempt.current !== currentAttempt) {
-          return;
-        }
-
+        })
+      } else {
         setRenderState({
           status: "failed",
-          message:
-            error instanceof Error && error.message.length > 0
-              ? error.message
-              : "Unknown Mermaid render error",
-        });
-      });
+          message: result.message,
+        })
+      }
+    })
 
     return () => {
-      isActive = false;
-    };
-  }, [block.code, blockId, mermaidTheme]);
+      isActive = false
+    }
+  }, [block.code, mermaidTheme])
 
   useEffect(() => {
     if (renderState.status !== "ready") {
-      return;
+      return
     }
 
-    const container = diagramRef.current;
+    const container = diagramRef.current
 
     if (!container) {
-      return;
+      return
     }
 
-    const template = document.createElement("template");
-    template.innerHTML = renderState.svg.trim();
-    const firstChild = template.content.firstElementChild;
+    const template = document.createElement("template")
+    template.innerHTML = renderState.svg.trim()
+    const firstChild = template.content.firstElementChild
 
     if (!(firstChild instanceof SVGElement)) {
       setRenderState({
         status: "failed",
         message: "Invalid Mermaid SVG output",
-      });
+      })
 
-      return;
+      return
     }
 
-    container.replaceChildren(firstChild);
+    container.replaceChildren(firstChild)
 
-    const svg = container.querySelector("svg");
+    const svg = container.querySelector("svg")
     if (svg) {
-      const scale = block.scale ?? 1;
+      const scale = block.scale ?? 1
       if (scale !== 1) {
-        const width = svg.getAttribute("width");
-        const height = svg.getAttribute("height");
+        const width = svg.getAttribute("width")
+        const height = svg.getAttribute("height")
         if (width) {
-          const num = Number.parseFloat(width);
+          const num = Number.parseFloat(width)
           if (Number.isFinite(num)) {
-            svg.setAttribute("width", String(num * scale));
+            svg.setAttribute("width", String(num * scale))
           }
         }
         if (height) {
-          const num = Number.parseFloat(height);
+          const num = Number.parseFloat(height)
           if (Number.isFinite(num)) {
-            svg.setAttribute("height", String(num * scale));
+            svg.setAttribute("height", String(num * scale))
           }
         }
       }
     }
-  }, [renderState, block.scale]);
+  }, [renderState, block.scale])
 
   return (
     <figure className="overflow-hidden border border-border/80 bg-card/80">
@@ -164,7 +147,11 @@ export function MermaidDiagram({ block, onExpand }: { block: MermaidBlock; onExp
             size="icon-xs"
             variant="outline"
             onClick={handleExpand}
-            className={renderState.status !== "ready" ? "pointer-events-none opacity-50" : ""}
+            className={
+              renderState.status !== "ready"
+                ? "pointer-events-none opacity-50"
+                : ""
+            }
           >
             <Maximize2 className="size-3" aria-hidden="true" />
           </Button>
@@ -182,8 +169,12 @@ export function MermaidDiagram({ block, onExpand }: { block: MermaidBlock; onExp
           </div>
         ) : renderState.status === "failed" ? (
           <div className="space-y-3">
-            <p className="text-xs font-medium text-foreground">Unable to render diagram.</p>
-            <p className="text-xs leading-5 text-muted-foreground">{renderState.message}</p>
+            <p className="text-xs font-medium text-foreground">
+              Unable to render diagram.
+            </p>
+            <p className="text-xs leading-5 text-muted-foreground">
+              {renderState.message}
+            </p>
             <pre className="overflow-x-auto border border-border/70 bg-muted/30 px-4 py-4 text-[13px] leading-6 whitespace-pre-wrap">
               {block.code}
             </pre>
@@ -193,5 +184,5 @@ export function MermaidDiagram({ block, onExpand }: { block: MermaidBlock; onExp
         )}
       </div>
     </figure>
-  );
+  )
 }

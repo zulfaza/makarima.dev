@@ -1,11 +1,11 @@
 {
   "name": "makarima-dev-monorepo",
   "private": true,
-  "type": "module",
   "workspaces": [
     "apps/*",
     "packages/*"
   ],
+  "type": "module",
   "scripts": {
     "dev": "bun run --filter @makarima/web dev",
     "build": "bun run --filter @makarima/web build",
