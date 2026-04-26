@@ -41,10 +41,19 @@ export type ProjectEntry = {
 
 export type CodeLanguage = "bash" | "json" | "ts" | "tsx";
 
+export type ContentSegment =
+  | { readonly kind: "text"; readonly value: string }
+  | { readonly kind: "inlineCode"; readonly value: string };
+
 export type ContentBlock =
   | {
       readonly kind: "paragraph";
-      readonly content: string;
+      readonly content: ReadonlyArray<ContentSegment>;
+    }
+  | {
+      readonly kind: "heading";
+      readonly level: 1 | 2 | 3 | 4 | 5 | 6;
+      readonly content: ReadonlyArray<ContentSegment>;
     }
   | {
       readonly kind: "image";
@@ -64,6 +73,7 @@ export type ContentBlock =
       readonly code: string;
       readonly title?: string;
       readonly caption?: string;
+      readonly scale?: number;
     };
 
 type BaseSocialLink = {

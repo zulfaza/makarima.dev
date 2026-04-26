@@ -83,7 +83,7 @@ flowchart TD
       body: [
         {
           kind: "paragraph",
-          content: "Paragraph copy.",
+          content: [{ kind: "text", value: "Paragraph copy." }],
         },
         {
           kind: "image",
@@ -144,7 +144,7 @@ Project paragraph.
       body: [
         {
           kind: "paragraph",
-          content: "Project paragraph.",
+          content: [{ kind: "text", value: "Project paragraph." }],
         },
       ],
     });
@@ -311,6 +311,78 @@ Body.
     );
   });
 
+  test("parses heading blocks with segments", () => {
+    const entry = parseBlogMarkdown(
+      "heading-node",
+      `---
+title: Heading Node
+summary: Heading node
+publishedAt: "2026-03-01"
+tags:
+  - one
+---
+
+# Heading 1
+
+## Heading 2
+`,
+    );
+
+    expect(entry.body).toEqual([
+      {
+        kind: "heading",
+        level: 1,
+        content: [{ kind: "text", value: "Heading 1" }],
+      },
+      {
+        kind: "heading",
+        level: 2,
+        content: [{ kind: "text", value: "Heading 2" }],
+      },
+    ]);
+  });
+
+  test("parses inline code in paragraphs and headings", () => {
+    const entry = parseBlogMarkdown(
+      "inline-code",
+      `---
+title: Inline Code
+summary: Inline code test
+publishedAt: "2026-03-01"
+tags:
+  - one
+---
+
+## The \`score\` formula
+
+The score is computed as \`score = 0.45 * co_occurrence + 0.25 * customer_history\`.
+`,
+    );
+
+    expect(entry.body).toEqual([
+      {
+        kind: "heading",
+        level: 2,
+        content: [
+          { kind: "text", value: "The " },
+          { kind: "inlineCode", value: "score" },
+          { kind: "text", value: " formula" },
+        ],
+      },
+      {
+        kind: "paragraph",
+        content: [
+          { kind: "text", value: "The score is computed as " },
+          {
+            kind: "inlineCode",
+            value: "score = 0.45 * co_occurrence + 0.25 * customer_history",
+          },
+          { kind: "text", value: "." },
+        ],
+      },
+    ]);
+  });
+
   test("fails on unsupported markdown nodes", () => {
     expect(() =>
       parseBlogMarkdown(
@@ -323,10 +395,10 @@ tags:
   - one
 ---
 
-# Heading
+> A blockquote
 `,
       ),
-    ).toThrowError('[content:blog:bad-node:line 1] Unsupported markdown node "heading"');
+    ).toThrowError('[content:blog:bad-node:line 1] Unsupported markdown node "blockquote"');
   });
 
   test("fails on unsupported inline markdown", () => {
@@ -345,7 +417,7 @@ Plain with [link](/docs).
 `,
       ),
     ).toThrowError(
-      '[content:blog:bad-inline:line 1] Unsupported inline markdown node "link" inside paragraph',
+      '[content:blog:bad-inline:line 1] Unsupported inline markdown node "link"',
     );
   });
 
@@ -367,7 +439,7 @@ const value = true
 `,
       ),
     ).toThrowError(
-      '[content:blog:bad-meta:line 1] Invalid code meta. Use title="..." and/or caption="..."',
+      '[content:blog:bad-meta:line 1] Invalid code meta. Use title="...", caption="...", and/or scale="..."',
     );
   });
 
@@ -375,6 +447,7 @@ const value = true
     expect(loadBlogs()).toEqual([]);
     expect(loadProjects().map((entry) => entry.slug)).toEqual([
       "ai-meeting-notes-poc-py",
+      "recommendation-system",
       "git-flex",
       "jwt-debugger",
     ]);

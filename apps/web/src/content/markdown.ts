@@ -1,7 +1,7 @@
 import { fromMarkdown } from "mdast-util-from-markdown";
 
 import { parseFrontmatter } from "@/content/frontmatter";
-import type { BlogEntry, CodeLanguage, ContentBlock, ProjectEntry } from "@/content/site";
+import type { BlogEntry, CodeLanguage, ContentBlock, ContentSegment, ProjectEntry } from "@/content/site";
 
 type MarkdownRoot = ReturnType<typeof fromMarkdown>;
 type MarkdownNode = MarkdownRoot["children"][number];
@@ -9,9 +9,11 @@ type ParagraphNode = Extract<MarkdownNode, { readonly type: "paragraph" }>;
 type ParagraphChildNode = ParagraphNode["children"][number];
 type ImageNode = Extract<ParagraphChildNode, { readonly type: "image" }>;
 type CodeNode = Extract<MarkdownNode, { readonly type: "code" }>;
+type HeadingNode = Extract<MarkdownNode, { readonly type: "heading" }>;
 type BlockMeta = {
   readonly title?: string;
   readonly caption?: string;
+  readonly scale?: number;
 };
 
 type ParsedBlogFrontmatter = Omit<BlogEntry, "body" | "slug">;
@@ -223,13 +225,8 @@ function parseProjectFrontmatter(source: string, context: string): ParsedProject
   };
 }
 
-function collapseMarkdownParagraph(text: string) {
-  return text
-    .split("\n")
-    .map((segment) => segment.trim())
-    .join(" ")
-    .replace(/\s+/g, " ")
-    .trim();
+function collapseInlineText(text: string) {
+  return text.replace(/\n/g, " ").replace(/  +/g, " ");
 }
 
 function parseCodeLanguage(language: string | null | undefined, context: string): CodeLanguage {
@@ -256,13 +253,14 @@ function parseCodeMeta(meta: string | null | undefined, context: string): BlockM
 
   let title: string | undefined;
   let caption: string | undefined;
+  let scale: number | undefined;
   let remaining = meta.trim();
 
   while (remaining.length > 0) {
-    const match = /^(title|caption)="([^"]*)"(?:\s+|$)/.exec(remaining);
+    const match = /^(title|caption|scale)="([^"]*)"(?:\s+|$)/.exec(remaining);
 
     if (!match) {
-      fail(context, 'Invalid code meta. Use title="..." and/or caption="..."');
+      fail(context, 'Invalid code meta. Use title="...", caption="...", and/or scale="..."');
     }
 
     const key = match[1];
@@ -274,12 +272,24 @@ function parseCodeMeta(meta: string | null | undefined, context: string): BlockM
       }
 
       title = value;
-    } else {
+    } else if (key === "caption") {
       if (caption !== undefined) {
         fail(context, 'Duplicate code meta key "caption"');
       }
 
       caption = value;
+    } else {
+      if (scale !== undefined) {
+        fail(context, 'Duplicate code meta key "scale"');
+      }
+
+      const parsed = Number(value);
+
+      if (!Number.isFinite(parsed) || parsed <= 0) {
+        fail(context, 'Expected "scale" to be a positive number');
+      }
+
+      scale = parsed;
     }
 
     remaining = remaining.slice(match[0].length).trimStart();
@@ -287,6 +297,7 @@ function parseCodeMeta(meta: string | null | undefined, context: string): BlockM
 
   return {
     caption,
+    scale,
     title,
   };
 }
@@ -295,6 +306,34 @@ function lineSuffix(node: { readonly position?: { readonly start?: { readonly li
   const line = node.position?.start?.line;
 
   return typeof line === "number" ? `:line ${line}` : "";
+}
+
+type InlineContentNode = ParagraphNode | HeadingNode;
+
+function parseInlineSegments(node: InlineContentNode, context: string): ReadonlyArray<ContentSegment> {
+  const segments: Array<ContentSegment> = [];
+
+  for (const child of node.children) {
+    if (child.type === "text") {
+      const value = collapseInlineText(child.value);
+      if (value.length > 0) {
+        segments.push({ kind: "text", value });
+      }
+    } else if (child.type === "inlineCode") {
+      segments.push({ kind: "inlineCode", value: child.value });
+    } else {
+      fail(
+        `${context}${lineSuffix(child)}`,
+        `Unsupported inline markdown node "${child.type}"`,
+      );
+    }
+  }
+
+  if (segments.length === 0) {
+    fail(`${context}${lineSuffix(node)}`, "Content cannot be empty");
+  }
+
+  return segments;
 }
 
 function parseImageBlock(node: ImageNode): Extract<ContentBlock, { readonly kind: "image" }> {
@@ -314,28 +353,20 @@ function parseParagraphBlock(
     return parseImageBlock(node.children[0]);
   }
 
-  const contentParts: Array<string> = [];
-
-  for (const child of node.children) {
-    if (child.type !== "text") {
-      fail(
-        `${context}${lineSuffix(child)}`,
-        `Unsupported inline markdown node "${child.type}" inside paragraph`,
-      );
-    }
-
-    contentParts.push(child.value);
-  }
-
-  const content = collapseMarkdownParagraph(contentParts.join(""));
-
-  if (content.length === 0) {
-    fail(`${context}${lineSuffix(node)}`, "Paragraph content cannot be empty");
-  }
-
   return {
     kind: "paragraph",
-    content,
+    content: parseInlineSegments(node, context),
+  };
+}
+
+function parseHeadingBlock(
+  node: HeadingNode,
+  context: string,
+): Extract<ContentBlock, { readonly kind: "heading" }> {
+  return {
+    kind: "heading",
+    level: node.depth as 1 | 2 | 3 | 4 | 5 | 6,
+    content: parseInlineSegments(node, context),
   };
 }
 
@@ -376,6 +407,9 @@ export function parseMarkdownBody(source: string, context: string): ReadonlyArra
     switch (child.type) {
       case "paragraph":
         blocks.push(parseParagraphBlock(child, context));
+        break;
+      case "heading":
+        blocks.push(parseHeadingBlock(child, context));
         break;
       case "code":
         blocks.push(

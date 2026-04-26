@@ -1,26 +1,22 @@
-import { ExternalLink } from "lucide-react"
-import { createFileRoute, Link, notFound } from "@tanstack/react-router"
+import { ExternalLink } from "lucide-react";
+import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 
-import { DetailContent } from "@/components/detail-content"
-import { ProjectStatusBadge } from "@/components/project-status-badge"
-import { ProjectTitle } from "@/components/project-title"
-import {
-  SiteFrame,
-  siteBadgeClassName,
-  siteMetaClassName,
-} from "@/components/site-frame"
-import { Badge } from "@/components/ui/badge"
-import { buttonVariants } from "@/components/ui/button"
-import { findProjectBySlug } from "@/content/site"
-import { createPageHead, createProjectJsonLd } from "@/lib/site-metadata"
+import { DetailContent } from "@/components/detail-content";
+import { ProjectStatusBadge } from "@/components/project-status-badge";
+import { ProjectTitle } from "@/components/project-title";
+import { SiteFrame, siteBadgeClassName, siteMetaClassName } from "@/components/site-frame";
+import { Badge } from "@/components/ui/badge";
+import { buttonVariants } from "@/components/ui/button";
+import { findProjectBySlug } from "@/content/site";
+import { createPageHead, createProjectJsonLd } from "@/lib/site-metadata";
 
-import type { ProjectEntry } from "@/content/site"
+import type { ProjectEntry } from "@/content/site";
 
 export const Route = createFileRoute("/projects/$slug")({
   loader: async ({ params }) => {
-    const entry = findProjectBySlug(params.slug)
-    if (!entry) throw notFound()
-    return entry
+    const entry = findProjectBySlug(params.slug);
+    if (!entry) throw notFound();
+    return entry;
   },
   head: ({ loaderData }) =>
     createPageHead({
@@ -31,29 +27,29 @@ export const Route = createFileRoute("/projects/$slug")({
       jsonLd: loaderData ? [createProjectJsonLd(loaderData)] : [],
     }),
   component: ProjectRouteComponent,
-})
+});
 
 export function loadProjectEntry(slug: string) {
-  const entry = findProjectBySlug(slug)
-  if (!entry) throw notFound()
-  return entry
+  const entry = findProjectBySlug(slug);
+  if (!entry) throw notFound();
+  return entry;
 }
 
 function ProjectRouteComponent() {
-  const entry = Route.useLoaderData()
+  const entry = Route.useLoaderData();
 
   if (!entry) {
-    throw notFound()
+    throw notFound();
   }
 
-  return <ProjectDetailPage entry={entry} />
+  return <ProjectDetailPage entry={entry} />;
 }
 
 export function ProjectDetailPage({ entry }: { entry: ProjectEntry }) {
   const trackedProjectHref =
     entry.access.kind === "external"
       ? createTrackedProjectHref(entry.access.href, entry.slug)
-      : null
+      : null;
 
   return (
     <SiteFrame>
@@ -76,9 +72,7 @@ export function ProjectDetailPage({ entry }: { entry: ProjectEntry }) {
               </ProjectTitle>
               <span className={siteMetaClassName}>{entry.year}</span>
             </div>
-            <p className="max-w-3xl text-sm leading-7 text-muted-foreground">
-              {entry.summary}
-            </p>
+            <p className="max-w-3xl text-sm leading-7 text-muted-foreground">{entry.summary}</p>
             <ul aria-label={`${entry.name} stack`} className="flex flex-wrap gap-2">
               {entry.stack.map((item) => (
                 <li key={item}>
@@ -91,7 +85,7 @@ export function ProjectDetailPage({ entry }: { entry: ProjectEntry }) {
           </div>
           <div className="flex flex-wrap items-center gap-2 lg:justify-end">
             <ProjectStatusBadge className={siteBadgeClassName} status={entry.status} />
-            {entry.access.kind === "external" ? (
+            {entry.access.kind === "external" && trackedProjectHref ? (
               <a
                 className={buttonVariants({ size: "sm", variant: "outline" })}
                 href={trackedProjectHref}
@@ -108,15 +102,15 @@ export function ProjectDetailPage({ entry }: { entry: ProjectEntry }) {
 
       <DetailContent blocks={entry.body} />
     </SiteFrame>
-  )
+  );
 }
 
 function createTrackedProjectHref(href: string, slug: string) {
-  const url = new URL(href)
+  const url = new URL(href);
 
-  url.searchParams.set("utm_source", "makarima.dev")
-  url.searchParams.set("utm_medium", "project_page")
-  url.searchParams.set("utm_campaign", slug)
+  url.searchParams.set("utm_source", "makarima.dev");
+  url.searchParams.set("utm_medium", "project_page");
+  url.searchParams.set("utm_campaign", slug);
 
-  return url.toString()
+  return url.toString();
 }

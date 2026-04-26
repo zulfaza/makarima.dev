@@ -1,25 +1,24 @@
-import { Moon, Sun } from "lucide-react"
-import { useEffect } from "react"
+import { Moon, Sun } from "lucide-react";
+import { useEffect } from "react";
 
-import { Button } from "@/components/ui/button"
-import { applyTheme, setThemePreference, useEffectiveTheme } from "@/lib/theme"
+import { Button } from "@/components/ui/button";
+import { applyTheme, setThemePreference, useEffectiveTheme } from "@/lib/theme";
 
 export function ThemeToggle() {
-  const theme = useEffectiveTheme()
-  const isDark = theme === "dark"
-  const label = isDark ? "Switch to light mode" : "Switch to dark mode"
-  const Icon = isDark ? Sun : Moon
+  const theme = useEffectiveTheme();
+  const isDark = theme === "dark";
+  const label = isDark ? "Switch to light mode" : "Switch to dark mode";
+  const Icon = isDark ? Sun : Moon;
 
   useEffect(() => {
-    applyTheme(theme)
-  }, [theme])
+    applyTheme(theme);
+  }, [theme]);
 
   return (
     <Button
       aria-label={label}
       onClick={() => {
-        console.log("here")
-        setThemePreference(isDark ? "light" : "dark")
+        setThemePreference(isDark ? "light" : "dark");
       }}
       size="icon-sm"
       title={label}
@@ -29,5 +28,5 @@ export function ThemeToggle() {
       <Icon />
       <span className="sr-only">{label}</span>
     </Button>
-  )
+  );
 }

@@ -1,5 +1,5 @@
 import { isNotFound } from "@tanstack/react-router"
-import { fireEvent, screen } from "@testing-library/react"
+import { fireEvent, screen, waitFor } from "@testing-library/react"
 
 import { BlogDetailPage, loadBlogEntry } from "@/routes/blogs/$slug"
 import { renderWithRouter } from "@/test/render-with-router"
@@ -16,7 +16,7 @@ const sampleBlogEntry: BlogEntry = {
   body: [
     {
       kind: "paragraph",
-      content: "Personal projects last longer when the constraints stay visible.",
+      content: [{ kind: "text" as const, value: "Personal projects last longer when the constraints stay visible." }],
     },
     {
       kind: "image",
@@ -34,7 +34,7 @@ const sampleBlogEntry: BlogEntry = {
 }
 
 describe("BlogDetailPage", () => {
-  test("renders blog detail content", () => {
+  test("renders blog detail content", async () => {
     renderWithRouter(<BlogDetailPage entry={sampleBlogEntry} />)
 
     const pageTitle = screen.getByRole("heading", {
@@ -60,7 +60,9 @@ describe("BlogDetailPage", () => {
       throw new Error("Expected code figure for blog detail")
     }
 
-    expect(codeBlock.textContent.includes("type ContentBlock =")).toBe(true)
+    await waitFor(() => {
+      expect(codeBlock.textContent.includes("type ContentBlock =")).toBe(true)
+    })
     expect(screen.getByRole("button", { name: /Copy code:/i })).toBeTruthy()
   })
 
