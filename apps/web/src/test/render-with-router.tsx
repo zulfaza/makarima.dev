@@ -5,6 +5,7 @@ import {
   createRouter as createTanStackRouter,
 } from "@tanstack/react-router"
 import { render } from "@testing-library/react"
+import { Suspense } from "react"
 
 import { SiteNotFound } from "@/components/site-not-found"
 import { getRouter } from "@/router"
@@ -20,7 +21,9 @@ export function renderWithRouter(
   const router = getRouter()
 
   return render(
-    <RouterContextProvider router={router}>{ui}</RouterContextProvider>,
+    <RouterContextProvider router={router}>
+      <Suspense>{ui}</Suspense>
+    </RouterContextProvider>,
     options
   )
 }

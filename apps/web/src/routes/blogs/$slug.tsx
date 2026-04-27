@@ -1,6 +1,6 @@
+import { lazy, Suspense } from "react"
 import { createFileRoute, Link, notFound } from "@tanstack/react-router"
 
-import { DetailContent } from "@/components/detail-content"
 import {
   SiteFrame,
   siteBadgeClassName,
@@ -11,6 +11,20 @@ import { findBlogBySlug, formatBlogDate } from "@/content/site"
 import { createBlogPostingJsonLd, createPageHead } from "@/lib/site-metadata"
 
 import type { BlogEntry } from "@/content/site"
+
+const DetailContent = lazy(() =>
+  import("@/components/detail-content").then((mod) => ({
+    default: mod.DetailContent,
+  })),
+)
+
+function DetailContentFallback() {
+  return (
+    <div className="border-b border-border/80 px-5 py-6 sm:px-8">
+      <div className="mx-auto max-w-3xl" />
+    </div>
+  )
+}
 
 export const Route = createFileRoute("/blogs/$slug")({
   loader: async ({ params }) => {
@@ -39,10 +53,6 @@ export function loadBlogEntry(slug: string) {
 
 function BlogRouteComponent() {
   const entry = Route.useLoaderData()
-
-  if (!entry) {
-    throw notFound()
-  }
 
   return <BlogDetailPage entry={entry} />
 }
@@ -83,7 +93,9 @@ export function BlogDetailPage({ entry }: { entry: BlogEntry }) {
         </div>
       </header>
 
-      <DetailContent blocks={entry.body} />
+      <Suspense fallback={<DetailContentFallback />}>
+        <DetailContent blocks={entry.body} />
+      </Suspense>
     </SiteFrame>
   )
 }

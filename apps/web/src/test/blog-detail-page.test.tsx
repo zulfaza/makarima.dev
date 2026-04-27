@@ -44,14 +44,14 @@ describe("BlogDetailPage", () => {
 
     expect(pageTitle).toBeTruthy()
     expect(screen.getByText("Feb 14, 2026")).toBeTruthy()
-    expect(screen.getAllByText(sampleBlogEntry.summary)).toHaveLength(2)
-    expect(screen.getByText("typescript")).toBeTruthy()
+    expect(screen.getByText(sampleBlogEntry.summary)).toBeTruthy()
+    expect(await screen.findByText("typescript")).toBeTruthy()
     expect(
-      screen.getByRole("img", {
+      await screen.findByRole("img", {
         name: "Editorial layout sketch with cards and code columns",
       })
     ).toBeTruthy()
-    const codeHeading = screen.getByText("Typed snippet")
+    const codeHeading = await screen.findByText("Typed snippet")
     const codeBlock = codeHeading.closest("figure")
 
     expect(codeHeading).toBeTruthy()
@@ -63,16 +63,17 @@ describe("BlogDetailPage", () => {
     await waitFor(() => {
       expect(codeBlock.textContent.includes("type ContentBlock =")).toBe(true)
     })
-    expect(screen.getByRole("button", { name: /Copy code:/i })).toBeTruthy()
+    expect(await screen.findByRole("button", { name: /Copy code:/i })).toBeTruthy()
   })
 
-  test("opens an image preview from rich content", () => {
+  test("opens an image preview from rich content", async () => {
     renderWithRouter(<BlogDetailPage entry={sampleBlogEntry} />)
 
-    fireEvent.click(screen.getByRole("button", { name: /Preview image:/i }))
+    const previewButton = await screen.findByRole("button", { name: /Preview image:/i })
+    fireEvent.click(previewButton)
 
     expect(
-      screen.getByRole("dialog", {
+      await screen.findByRole("dialog", {
         name: "Editorial layout sketch with cards and code columns",
       })
     ).toBeTruthy()
@@ -84,7 +85,8 @@ describe("BlogDetailPage", () => {
   test("copies highlighted blog code", async () => {
     renderWithRouter(<BlogDetailPage entry={sampleBlogEntry} />)
 
-    fireEvent.click(screen.getByRole("button", { name: /Copy code:/i }))
+    const copyButton = await screen.findByRole("button", { name: /Copy code:/i })
+    fireEvent.click(copyButton)
 
     expect(
       await screen.findByRole("button", { name: /Copied code:/i })
@@ -92,11 +94,11 @@ describe("BlogDetailPage", () => {
     expect(getClipboardText()).toContain("type ContentBlock =")
   })
 
-  test("throws a TanStack not-found for missing slugs", async () => {
+  test("throws a TanStack not-found for missing slugs", () => {
     expect.assertions(1)
 
     try {
-      await loadBlogEntry("missing-blog")
+      loadBlogEntry("missing-blog")
     } catch (error) {
       expect(isNotFound(error)).toBe(true)
     }

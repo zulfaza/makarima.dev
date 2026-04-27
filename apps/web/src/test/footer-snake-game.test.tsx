@@ -18,7 +18,7 @@ function createRandomSequence(values: ReadonlyArray<number>) {
   let index = 0
 
   return () => {
-    const value = values[index] ?? values[values.length - 1] ?? 0
+    const value = values.at(index) ?? values.at(-1) ?? 0
 
     index += 1
 

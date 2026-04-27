@@ -15,6 +15,8 @@ export type BlogEntry = {
   readonly body: ReadonlyArray<ContentBlock>;
 };
 
+export type BlogMetadata = Omit<BlogEntry, "body">;
+
 export type ProjectStatus = "active" | "archived" | "draft";
 
 export type ProjectAccess =
@@ -38,6 +40,8 @@ export type ProjectEntry = {
   readonly access: ProjectAccess;
   readonly body: ReadonlyArray<ContentBlock>;
 };
+
+export type ProjectMetadata = Omit<ProjectEntry, "body">;
 
 export type CodeLanguage = "bash" | "json" | "ts" | "tsx";
 
@@ -149,6 +153,10 @@ export function loadBlogs() {
     .sort(compareBlogs);
 }
 
+export function loadBlogMetadata() {
+  return loadBlogs().map(({ body: _, ...metadata }) => metadata);
+}
+
 export function loadProjects() {
   const projectModules = import.meta.glob<string>("./projects/*.md", {
     eager: true,
@@ -159,6 +167,10 @@ export function loadProjects() {
   return Object.entries(projectModules)
     .map(([path, source]) => parseProjectMarkdown(readSlug(path, "projects"), source))
     .sort(compareProjects);
+}
+
+export function loadProjectMetadata() {
+  return loadProjects().map(({ body: _, ...metadata }) => metadata);
 }
 
 export function findBlogBySlug(slug: string) {

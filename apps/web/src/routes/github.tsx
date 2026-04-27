@@ -9,7 +9,7 @@ export const Route = createFileRoute("/github")({
 
 function GithubRedirect() {
   useEffect(() => {
-    window.gtag?.("event", "redirect_click", { destination: DESTINATION })
+    window.gtag("event", "redirect_click", { destination: DESTINATION })
     window.location.replace(DESTINATION)
   }, [])
   return null

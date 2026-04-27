@@ -46,9 +46,14 @@ describe("HomePage", () => {
   test("renders home sections and detail links", async () => {
     const { loadBlogs, loadProjects } = await import("@/content/site")
     const blogs = loadBlogs()
-    const firstProject = loadProjects()[0]
+    const projects = loadProjects()
+    const firstProject = projects.shift()
 
-    if (firstProject === undefined || firstProject.access.kind !== "external") {
+    if (firstProject === undefined) {
+      throw new Error("Expected at least one project")
+    }
+
+    if (firstProject.access.kind !== "external") {
       throw new Error("Expected first project with external access")
     }
 
@@ -86,7 +91,7 @@ describe("HomePage", () => {
     expect(screen.queryByText("Pixel snake")).toBeNull()
     expect(screen.queryByText("Use arrow keys, WASD, or HJKL.")).toBeNull()
 
-    const gameBoard = screen.getByTestId("footer-snake-board")
+    const gameBoard = await screen.findByTestId("footer-snake-board")
     const footer = screen.getByRole("contentinfo")
     const links = within(footer).getAllByRole("link")
     const themeToggle = within(footer).getByRole("button", {

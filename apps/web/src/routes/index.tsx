@@ -1,5 +1,5 @@
-import { ExternalLink } from "lucide-react"
 import { createFileRoute, Link } from "@tanstack/react-router"
+import { ExternalLink } from "lucide-react"
 
 import { FooterSnakeGame } from "@/components/footer-snake-game"
 import { ProjectStatusBadge } from "@/components/project-status-badge"
@@ -11,17 +11,25 @@ import {
 } from "@/components/site-frame"
 import { Badge } from "@/components/ui/badge"
 import { buttonVariants } from "@/components/ui/button"
-import { formatBlogDate, loadBlogs, loadProjects } from "@/content/site"
-import type { BlogEntry, ProjectEntry } from "@/content/site"
+import {
+  formatBlogDate,
+  loadBlogMetadata,
+  loadProjectMetadata,
+} from "@/content/site"
 import {
   createPageHead,
   createPersonJsonLd,
   createWebsiteJsonLd,
 } from "@/lib/site-metadata"
 
+import type { BlogMetadata, ProjectMetadata } from "@/content/site"
+
 export const Route = createFileRoute("/")({
   loader: async () => {
-    const [blogs, projects] = await Promise.all([loadBlogs(), loadProjects()])
+    const [blogs, projects] = await Promise.all([
+      loadBlogMetadata(),
+      loadProjectMetadata(),
+    ])
     return { blogs, projects }
   },
   head: () =>
@@ -40,8 +48,10 @@ const sectionLinkClassName =
   "border-b border-transparent pb-1 text-sm text-foreground transition-colors hover:border-foreground/40 hover:text-foreground focus-visible:border-foreground focus-visible:outline-none"
 const sectionClassName = "px-5 py-6 sm:px-8"
 const sectionHeadingClassName = "text-base font-medium text-foreground"
-const sectionListClassName = "divide-y divide-border/80 border-y border-border/80"
-const projectSectionListClassName = "divide-y divide-border/80 border-t border-border/80"
+const sectionListClassName =
+  "divide-y divide-border/80 border-y border-border/80"
+const projectSectionListClassName =
+  "divide-y divide-border/80 border-t border-border/80"
 
 function getSectionClassName(className?: string) {
   return className === undefined
@@ -50,8 +60,8 @@ function getSectionClassName(className?: string) {
 }
 
 type HomePageProps = {
-  blogs: ReadonlyArray<BlogEntry>
-  projects: ReadonlyArray<ProjectEntry>
+  blogs: ReadonlyArray<BlogMetadata>
+  projects: ReadonlyArray<ProjectMetadata>
 }
 
 function HomePageRoute() {
@@ -139,7 +149,13 @@ function HomeEmptyState() {
   )
 }
 
-function BlogSection({ blogs, className }: { blogs: ReadonlyArray<BlogEntry>; className?: string }) {
+function BlogSection({
+  blogs,
+  className,
+}: {
+  blogs: ReadonlyArray<BlogMetadata>
+  className?: string
+}) {
   return (
     <section aria-labelledby="blogs" className={getSectionClassName(className)}>
       <div className="space-y-5">
@@ -176,10 +192,7 @@ function BlogSection({ blogs, className }: { blogs: ReadonlyArray<BlogEntry>; cl
                 >
                   {entry.tags.map((tag) => (
                     <li key={tag}>
-                      <Badge
-                        variant="outline"
-                        className={siteBadgeClassName}
-                      >
+                      <Badge variant="outline" className={siteBadgeClassName}>
                         {tag}
                       </Badge>
                     </li>
@@ -194,7 +207,11 @@ function BlogSection({ blogs, className }: { blogs: ReadonlyArray<BlogEntry>; cl
   )
 }
 
-function ProjectsSection({ projects }: { projects: ReadonlyArray<ProjectEntry> }) {
+function ProjectsSection({
+  projects,
+}: {
+  projects: ReadonlyArray<ProjectMetadata>
+}) {
   return (
     <section aria-labelledby="projects" className={sectionClassName}>
       <div className="space-y-5">
@@ -231,10 +248,7 @@ function ProjectsSection({ projects }: { projects: ReadonlyArray<ProjectEntry> }
                   >
                     {project.stack.map((item) => (
                       <li key={item}>
-                        <Badge
-                          variant="outline"
-                          className={siteBadgeClassName}
-                        >
+                        <Badge variant="outline" className={siteBadgeClassName}>
                           {item}
                         </Badge>
                       </li>
@@ -248,7 +262,10 @@ function ProjectsSection({ projects }: { projects: ReadonlyArray<ProjectEntry> }
                   />
                   {project.access.kind === "external" ? (
                     <a
-                      className={buttonVariants({ size: "sm", variant: "outline" })}
+                      className={buttonVariants({
+                        size: "sm",
+                        variant: "outline",
+                      })}
                       href={project.access.href}
                       rel="noreferrer"
                       target="_blank"

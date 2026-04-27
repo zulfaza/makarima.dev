@@ -30,17 +30,17 @@ describe("ProjectDetailPage", () => {
       "https://github.com/zulfaza/ai-meeting-notes-poc-py?utm_source=makarima.dev&utm_medium=project_page&utm_campaign=ai-meeting-notes-poc-py"
     )
     expect(
-      screen.getByText(/This project explores a narrow but useful workflow:/)
+      await screen.findByText(/This project explores a narrow but useful workflow:/)
     ).toBeTruthy()
     expect(
-      screen.getByText(/The pipeline is intentionally explicit\./)
+      await screen.findByText(/The pipeline is intentionally explicit\./)
     ).toBeTruthy()
     expect(screen.queryByRole("img")).toBeNull()
     expect(screen.queryByRole("button", { name: /Copy code:/i })).toBeNull()
     expect(screen.queryByRole("button", { name: /Preview image:/i })).toBeNull()
-    expect(screen.getByText("Code flow")).toBeTruthy()
+    expect(await screen.findByText("Code flow")).toBeTruthy()
     expect(
-      screen.getByText(
+      await screen.findByText(
         "Pipeline from source video to structured notes and action items."
       )
     ).toBeTruthy()
@@ -52,11 +52,11 @@ describe("ProjectDetailPage", () => {
     expect(screen.queryByRole("heading", { name: "Pixel snake" })).toBeNull()
   })
 
-  test("throws a TanStack not-found for missing slugs", async () => {
+  test("throws a TanStack not-found for missing slugs", () => {
     expect.assertions(1)
 
     try {
-      await loadProjectEntry("missing-project")
+      loadProjectEntry("missing-project")
     } catch (error) {
       expect(isNotFound(error)).toBe(true)
     }

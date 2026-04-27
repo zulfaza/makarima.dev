@@ -148,14 +148,14 @@ function parseFlowchart(code: string): ParsedFlowchart {
     .split("\n")
     .map((line) => line.trim())
     .filter((line) => line.length > 0)
-  const header = lines[0]
 
-  if (header === undefined) {
+  if (lines.length === 0) {
     return { status: "failed", message: "Empty diagram" }
   }
 
+  const header = lines[0]
   const [kind, rawDirection] = header.split(/\s+/)
-  const direction = parseDirection(rawDirection ?? "")
+  const direction = parseDirection(rawDirection)
 
   if (kind !== "flowchart" || direction === null) {
     return {
@@ -179,10 +179,6 @@ function parseFlowchart(code: string): ParsedFlowchart {
     const edgeLabel = match[3]
     const to = match[4]
     const toLabel = match[5]
-
-    if (from === undefined || to === undefined) {
-      continue
-    }
 
     addNode(nodes, from, fromLabel)
     addNode(nodes, to, toLabel)

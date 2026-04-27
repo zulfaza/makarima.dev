@@ -1,30 +1,51 @@
 import { Check, Copy } from "lucide-react"
-import { useEffect, useRef, useState } from "react"
-import ShikiHighlighter, {
-  createHighlighterCore,
-  createJavaScriptRegexEngine,
-} from "react-shiki/core"
+import { lazy, Suspense, useRef, useState } from "react"
 
 import { Button } from "@/components/ui/button"
-import { useEffectiveTheme } from "@/lib/theme"
 
 import type { CodeBlock } from "./types"
 
-const jsEngine = createJavaScriptRegexEngine({ forgiving: true })
-const shikiHighlighter = createHighlighterCore({
-  engine: jsEngine,
-  langs: [
-    import("@shikijs/langs/bash"),
-    import("@shikijs/langs/json"),
-    import("@shikijs/langs/typescript"),
-    import("@shikijs/langs/tsx"),
-  ],
-  themes: [
-    import("@shikijs/themes/dark-plus"),
-    import("@shikijs/themes/light-plus"),
-  ],
-})
-type ShikiHighlighterInstance = Awaited<typeof shikiHighlighter>
+const ShikiHighlighterLazy = lazy(() =>
+  import("react-shiki/core").then(async (mod) => {
+    const highlighter = await mod.createHighlighterCore({
+      engine: mod.createJavaScriptRegexEngine({ forgiving: true }),
+      langs: [
+        import("@shikijs/langs/bash"),
+        import("@shikijs/langs/json"),
+        import("@shikijs/langs/typescript"),
+        import("@shikijs/langs/tsx"),
+      ],
+      themes: [
+        import("@shikijs/themes/dark-plus"),
+        import("@shikijs/themes/light-plus"),
+      ],
+    })
+    return {
+      default: function ShikiHighlighterReady({
+        code,
+        language,
+        theme,
+      }: {
+        readonly code: string
+        readonly language: string
+        readonly theme: { readonly dark: string; readonly light: string }
+      }) {
+        return (
+          <mod.default
+            className="shiki-code min-w-full text-[13px] leading-6 [&_pre]:m-0 [&>pre]:rounded-none!"
+            highlighter={highlighter}
+            language={language}
+            showLanguage={false}
+            showLineNumbers
+            theme={theme}
+          >
+            {code}
+          </mod.default>
+        )
+      },
+    }
+  }),
+)
 
 const shikiLanguageByCodeLanguage: Record<CodeBlock["language"], string> = {
   bash: "bash",
@@ -34,32 +55,11 @@ const shikiLanguageByCodeLanguage: Record<CodeBlock["language"], string> = {
 }
 
 export function CodeSnippet({ block }: { block: CodeBlock }) {
-  const theme = useEffectiveTheme()
-  const [highlighter, setHighlighter] =
-    useState<ShikiHighlighterInstance | null>(null)
   const [copyState, setCopyState] = useState<"copied" | "failed" | "idle">(
     "idle"
   )
   const isCopied = copyState === "copied"
   const timeoutId = useRef<number | null>(null)
-
-  useEffect(() => {
-    let isActive = true
-
-    void shikiHighlighter.then((loadedHighlighter) => {
-      if (isActive) {
-        setHighlighter(loadedHighlighter)
-      }
-    })
-
-    return () => {
-      isActive = false
-
-      if (timeoutId.current !== null) {
-        window.clearTimeout(timeoutId.current)
-      }
-    }
-  }, [])
 
   async function handleCopyCode() {
     try {
@@ -135,23 +135,19 @@ export function CodeSnippet({ block }: { block: CodeBlock }) {
         </div>
       </div>
       <div className="overflow-x-auto">
-        {highlighter === null ? (
-          <pre className="m-0 min-w-full px-4 py-4 text-[13px] leading-6">
-            <code>{block.code}</code>
-          </pre>
-        ) : (
-          <ShikiHighlighter
-            className="shiki-code min-w-full text-[13px] leading-6 [&_pre]:m-0 [&>pre]:rounded-none!"
-            highlighter={highlighter}
+        <Suspense
+          fallback={
+            <pre className="m-0 min-w-full px-4 py-4 text-[13px] leading-6">
+              <code>{block.code}</code>
+            </pre>
+          }
+        >
+          <ShikiHighlighterLazy
+            code={block.code}
             language={shikiLanguageByCodeLanguage[block.language]}
-            showLanguage={false}
-            showLineNumbers
             theme={{ dark: "dark-plus", light: "light-plus" }}
-            defaultColor={theme}
-          >
-            {block.code}
-          </ShikiHighlighter>
-        )}
+          />
+        </Suspense>
       </div>
     </figure>
   )

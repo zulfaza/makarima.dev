@@ -63,6 +63,10 @@ describe("site metadata", () => {
       content: "https://makarima.dev/og.png",
     })
     expect(head.meta).toContainEqual({
+      property: "og:image:alt",
+      content: "World",
+    })
+    expect(head.meta).toContainEqual({
       property: "og:url",
       content: "https://makarima.dev/blogs/hello",
     })
@@ -98,7 +102,7 @@ describe("site metadata", () => {
     ])
   })
 
-  test("builds root head links with stylesheet and font preload", () => {
+  test("builds root head links with async stylesheet and font preload", () => {
     expect(
       createRootHeadLinks({
         appCssHref: "/assets/styles.css",
@@ -106,15 +110,16 @@ describe("site metadata", () => {
       }),
     ).toEqual([
       {
-        rel: "stylesheet",
-        href: "/assets/styles.css",
-      },
-      {
         rel: "preload",
         href: "/assets/geist-mono-latin.woff2",
         as: "font",
         type: "font/woff2",
         crossOrigin: "anonymous",
+      },
+      {
+        rel: "stylesheet",
+        href: "/assets/styles.css",
+        media: "print",
       },
       ...createSiteLinks(),
     ])

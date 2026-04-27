@@ -2,6 +2,6 @@ export {}
 
 declare global {
   interface Window {
-    gtag: (...args: unknown[]) => void
+    gtag: (...args: Array<unknown>) => void
   }
 }

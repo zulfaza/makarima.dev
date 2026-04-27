@@ -1,5 +1,5 @@
+import type { BlogEntry, ProjectEntry } from "../content/site"
 import type { RouteLinkEntry } from "@tanstack/react-router"
-import type { BlogEntry, ProjectEntry } from "@/content/site"
 
 const siteTitle = "makarima.dev"
 const defaultKeywords = [
@@ -164,7 +164,7 @@ export function createPageMeta({
     },
     {
       property: "og:image:alt",
-      content: siteMetadata.ogImage.alt,
+      content: pageDescription,
     },
     {
       property: "og:image:width",
@@ -257,7 +257,7 @@ export function createRootHeadLinks({
 
 export function createPageHead(
   page: PageMetadata & { readonly jsonLd?: ReadonlyArray<JsonLdObject> }
-){
+) {
   return {
     meta: createPageMeta(page),
     links: [

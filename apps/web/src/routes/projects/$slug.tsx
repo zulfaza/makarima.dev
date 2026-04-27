@@ -1,16 +1,30 @@
-import { ExternalLink } from "lucide-react";
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { ExternalLink } from "lucide-react"
+import { lazy, Suspense } from "react"
+import { createFileRoute, Link, notFound } from "@tanstack/react-router"
 
-import { DetailContent } from "@/components/detail-content";
-import { ProjectStatusBadge } from "@/components/project-status-badge";
-import { ProjectTitle } from "@/components/project-title";
-import { SiteFrame, siteBadgeClassName, siteMetaClassName } from "@/components/site-frame";
-import { Badge } from "@/components/ui/badge";
-import { buttonVariants } from "@/components/ui/button";
-import { findProjectBySlug } from "@/content/site";
-import { createPageHead, createProjectJsonLd } from "@/lib/site-metadata";
+import { ProjectStatusBadge } from "@/components/project-status-badge"
+import { ProjectTitle } from "@/components/project-title"
+import { SiteFrame, siteBadgeClassName, siteMetaClassName } from "@/components/site-frame"
+import { Badge } from "@/components/ui/badge"
+import { buttonVariants } from "@/components/ui/button"
+import { findProjectBySlug } from "@/content/site"
+import { createPageHead, createProjectJsonLd } from "@/lib/site-metadata"
 
-import type { ProjectEntry } from "@/content/site";
+import type { ProjectEntry } from "@/content/site"
+
+const DetailContent = lazy(() =>
+  import("@/components/detail-content").then((mod) => ({
+    default: mod.DetailContent,
+  })),
+)
+
+function DetailContentFallback() {
+  return (
+    <div className="border-b border-border/80 px-5 py-6 sm:px-8">
+      <div className="mx-auto max-w-3xl" />
+    </div>
+  )
+}
 
 export const Route = createFileRoute("/projects/$slug")({
   loader: async ({ params }) => {
@@ -37,10 +51,6 @@ export function loadProjectEntry(slug: string) {
 
 function ProjectRouteComponent() {
   const entry = Route.useLoaderData();
-
-  if (!entry) {
-    throw notFound();
-  }
 
   return <ProjectDetailPage entry={entry} />;
 }
@@ -100,7 +110,9 @@ export function ProjectDetailPage({ entry }: { entry: ProjectEntry }) {
         </div>
       </header>
 
-      <DetailContent blocks={entry.body} />
+      <Suspense fallback={<DetailContentFallback />}>
+        <DetailContent blocks={entry.body} />
+      </Suspense>
     </SiteFrame>
   );
 }

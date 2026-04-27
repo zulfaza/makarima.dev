@@ -365,7 +365,7 @@ function parseHeadingBlock(
 ): Extract<ContentBlock, { readonly kind: "heading" }> {
   return {
     kind: "heading",
-    level: node.depth as 1 | 2 | 3 | 4 | 5 | 6,
+    level: node.depth,
     content: parseInlineSegments(node, context),
   };
 }

@@ -1,3 +1,4 @@
+import geistMonoLatinFont from "@fontsource-variable/geist-mono/files/geist-mono-latin-wght-normal.woff2?url"
 import { TanStackDevtools } from "@tanstack/react-devtools"
 import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router"
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools"
@@ -10,7 +11,6 @@ import {
 import { themeBootScript } from "@/lib/theme"
 
 import appCss from "../styles.css?url"
-import geistMonoLatinFont from "@fontsource-variable/geist-mono/files/geist-mono-latin-wght-normal.woff2?url"
 
 const googleTagId = "G-TXF9TQ8FWX"
 const googleTagScriptSrc = `https://www.googletagmanager.com/gtag/js?id=${googleTagId}`
@@ -20,6 +20,15 @@ function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
 gtag('config', '${googleTagId}');
 `
+
+function GoogleTagManager() {
+  return (
+    <>
+      <script async src={googleTagScriptSrc} />
+      <script dangerouslySetInnerHTML={{ __html: googleTagBootScript }} />
+    </>
+  )
+}
 
 export const Route = createRootRoute({
   head: () => ({
@@ -51,9 +60,8 @@ function RootDocument({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <script async src={googleTagScriptSrc} />
-        <script>{googleTagBootScript}</script>
-        <script>{themeBootScript}</script>
+        <script dangerouslySetInnerHTML={{ __html: themeBootScript }} />
+        <GoogleTagManager />
         <HeadContent />
       </head>
       <body>

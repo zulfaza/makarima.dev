@@ -583,13 +583,6 @@ function advanceGameState(gameState: GameState, random: () => number): GameState
   const { snakeState } = gameState;
   const head = snakeState.snake[0];
 
-  if (!head) {
-    return {
-      phase: "game-over",
-      snakeState,
-    };
-  }
-
   const nextDirection = snakeState.pendingDirection;
   const nextHead = getNextHead(head, nextDirection);
 
