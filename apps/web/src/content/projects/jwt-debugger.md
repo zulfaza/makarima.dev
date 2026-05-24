@@ -7,8 +7,7 @@ stack:
   - TypeScript
   - Vite
   - Tailwind CSS
-  - jose
-  - jsonwebtoken
+  - jwt
 status: active
 accessHref: https://jwt.makarima.dev/
 accessLabel: Open project

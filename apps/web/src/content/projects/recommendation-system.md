@@ -5,8 +5,6 @@ date: "2026-05-06"
 stack:
   - TypeScript
   - Bun
-  - MongoDB
-  - Offline evaluation
 status: active
 accessHref: https://github.com/zulfaza/recomendation-system
 accessLabel: View source
@@ -105,7 +103,10 @@ Product similarity artifact (data/product-similarities.json) stores top-N simila
   "halfLifeDays": 90,
   "referenceDate": "2025-12-30T22:57:07.755Z",
   "similarities": [
-    ["productId", [{ "productId": "relatedId", "score": 0.49876, "pairCount": 12501.53 }]]
+    [
+      "productId",
+      [{ "productId": "relatedId", "score": 0.49876, "pairCount": 12501.53 }]
+    ]
   ]
 }
 ```
