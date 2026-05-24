@@ -23,7 +23,7 @@ const sampleProjectEntry: ProjectEntry = {
   slug: "git-flex",
   name: "GitFlex",
   summary: "CLI helpers for cleaner branch work.",
-  year: 2026,
+  date: "2026-05-06",
   stack: ["TypeScript", "React"],
   status: "active",
   access: {

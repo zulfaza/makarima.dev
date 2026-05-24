@@ -1,7 +1,7 @@
 ---
 name: GitFlex
 summary: A web app for reshaping GitHub contribution calendars with custom layouts, themes, and exportable output.
-year: 2025
+date: "2025-03-15"
 stack:
   - Next.js
   - React

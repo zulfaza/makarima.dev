@@ -1,7 +1,7 @@
 ---
 name: AI Meeting Notes POC
 summary: A Python CLI POC that turns meeting recordings into speaker-attributed notes and action items.
-year: 2026
+date: "2026-05-06"
 stack:
   - Python
   - OpenAI API

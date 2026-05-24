@@ -63,11 +63,31 @@ function readStringArrayField(data: Record<string, unknown>, field: string, cont
   return value;
 }
 
-function readNumberField(data: Record<string, unknown>, field: string, context: string) {
-  const value = data[field];
+function readDateField(data: Record<string, unknown>, field: string, context: string) {
+  const rawValue = data[field];
 
-  if (typeof value !== "number" || !Number.isFinite(value)) {
-    fail(context, `Expected "${field}" to be a finite number`);
+  if (typeof rawValue !== "string" || rawValue.trim().length === 0) {
+    fail(context, `Expected "${field}" to be a non-empty string`);
+  }
+
+  const value = rawValue.trim();
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+
+  if (!match) {
+    fail(context, `Expected "${field}" to use YYYY-MM-DD`);
+  }
+
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const date = new Date(Date.UTC(year, month - 1, day));
+
+  if (
+    date.getUTCFullYear() !== year ||
+    date.getUTCMonth() !== month - 1 ||
+    date.getUTCDate() !== day
+  ) {
+    fail(context, `Expected "${field}" to be a valid calendar date`);
   }
 
   return value;
@@ -218,7 +238,7 @@ function parseProjectFrontmatter(source: string, context: string): ParsedProject
           : undefined,
     name: readStringField(data, "name", context),
     summary: readStringField(data, "summary", context),
-    year: readNumberField(data, "year", context),
+    date: readDateField(data, "date", context),
     stack: readStringArrayField(data, "stack", context),
     status: readProjectStatus(data, context),
     access,

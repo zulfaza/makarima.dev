@@ -1,7 +1,7 @@
 ---
 name: JWT Debugger
 summary: A browser-based JWT playground for decoding, editing, regenerating, and verifying tokens with immediate feedback.
-year: 2025
+date: "2025-06-20"
 stack:
   - React
   - TypeScript

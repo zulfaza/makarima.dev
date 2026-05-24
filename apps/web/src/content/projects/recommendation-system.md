@@ -1,7 +1,7 @@
 ---
 name: Recommendation System
 summary: A TypeScript checkout recommendation service that ranks explainable "you might also want" products from order history and catalog data.
-year: 2026
+date: "2026-05-06"
 stack:
   - TypeScript
   - Bun

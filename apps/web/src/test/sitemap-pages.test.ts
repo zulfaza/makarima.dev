@@ -62,7 +62,7 @@ tags:
       `---
 name: Alpha
 summary: Alpha project
-year: 2026
+date: "2026-01-01"
 stack:
   - React
 status: active
@@ -74,7 +74,7 @@ status: active
       `---
 name: Omega
 summary: Omega project
-year: 2025
+date: "2025-06-15"
 stack:
   - TypeScript
 status: archived

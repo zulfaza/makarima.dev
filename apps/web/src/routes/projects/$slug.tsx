@@ -80,7 +80,7 @@ export function ProjectDetailPage({ entry }: { entry: ProjectEntry }) {
                   {entry.name}
                 </h1>
               </ProjectTitle>
-              <span className={siteMetaClassName}>{entry.year}</span>
+              <span className={siteMetaClassName}>{entry.date}</span>
             </div>
             <p className="max-w-3xl text-sm leading-7 text-muted-foreground">{entry.summary}</p>
             <ul aria-label={`${entry.name} stack`} className="flex flex-wrap gap-2">

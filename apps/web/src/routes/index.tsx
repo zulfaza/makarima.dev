@@ -237,7 +237,7 @@ function ProjectsSection({
                         </Link>
                       </h3>
                     </ProjectTitle>
-                    <span className={siteMetaClassName}>{project.year}</span>
+                    <span className={siteMetaClassName}>{project.date}</span>
                   </div>
                   <p className="max-w-2xl text-sm leading-7 text-foreground/88">
                     {project.summary}

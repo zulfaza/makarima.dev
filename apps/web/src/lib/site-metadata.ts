@@ -337,7 +337,7 @@ export function createProjectJsonLd(entry: ProjectEntry) {
       name: siteMetadata.author.name,
       url: siteMetadata.origin,
     },
-    dateCreated: `${entry.year}-01-01`,
+    dateCreated: entry.date,
     description: entry.summary,
     genre: "Software project",
     keywords: entry.stack.join(", "),

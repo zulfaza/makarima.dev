@@ -17,7 +17,7 @@ describe("ProjectDetailPage", () => {
     })
 
     expect(pageTitle).toBeTruthy()
-    expect(screen.getByText("2026")).toBeTruthy()
+    expect(screen.getByText("2026-05-06")).toBeTruthy()
     expect(screen.getByText("Active")).toBeTruthy()
     expect(screen.getByText(entry.summary)).toBeTruthy()
     expect(screen.getByText("Python")).toBeTruthy()

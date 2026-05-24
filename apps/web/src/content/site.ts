@@ -34,7 +34,7 @@ export type ProjectEntry = {
   readonly name: string;
   readonly faviconHref?: string;
   readonly summary: string;
-  readonly year: number;
+  readonly date: string;
   readonly stack: ReadonlyArray<string>;
   readonly status: ProjectStatus;
   readonly access: ProjectAccess;
@@ -132,10 +132,10 @@ function compareProjects(left: ProjectEntry, right: ProjectEntry) {
     return statusDiff;
   }
 
-  const yearDiff = right.year - left.year;
+  const dateDiff = right.date.localeCompare(left.date);
 
-  if (yearDiff !== 0) {
-    return yearDiff;
+  if (dateDiff !== 0) {
+    return dateDiff;
   }
 
   return left.slug.localeCompare(right.slug);

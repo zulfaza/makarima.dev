@@ -114,7 +114,7 @@ flowchart TD
       `---
 name: Sample Project
 summary: Sample project summary
-year: 2025
+date: "2025-01-01"
 stack:
   - TypeScript
   - Vitest
@@ -133,7 +133,7 @@ Project paragraph.
       faviconHref:
         "https://www.google.com/s2/favicons?domain_url=https%3A%2F%2Fexample.com&sz=64",
       summary: "Sample project summary",
-      year: 2025,
+      date: "2025-01-01",
       stack: ["TypeScript", "Vitest"],
       status: "active",
       access: {
@@ -156,7 +156,7 @@ Project paragraph.
       `---
 name: Sample Project Override
 summary: Sample project summary
-year: 2025
+date: "2025-03-15"
 stack:
   - TypeScript
 status: active
@@ -177,7 +177,7 @@ Project paragraph.
       `---
 name: Sample Project Local Favicon
 summary: Sample project summary
-year: 2025
+date: "2025-06-20"
 stack:
   - TypeScript
 status: active
@@ -233,7 +233,7 @@ Body.
         `---
 name: Bad Status
 summary: Invalid status
-year: 2026
+date: "2026-01-01"
 stack:
   - TypeScript
 status: live
@@ -253,7 +253,7 @@ Body.
       `---
 name: No Access
 summary: No access link
-year: 2025
+date: "2025-12-01"
 stack:
   - TypeScript
 status: active
@@ -274,7 +274,7 @@ Body.
         `---
 name: Bad Favicon
 summary: Invalid favicon URL
-year: 2025
+date: "2025-08-15"
 stack:
   - TypeScript
 status: active
@@ -296,7 +296,7 @@ Body.
         `---
 name: Bad Favicon Path
 summary: Invalid favicon path
-year: 2025
+date: "2025-04-10"
 stack:
   - TypeScript
 status: active
@@ -448,8 +448,8 @@ const value = true
     expect(loadProjects().map((entry) => entry.slug)).toEqual([
       "ai-meeting-notes-poc-py",
       "recommendation-system",
-      "git-flex",
       "jwt-debugger",
+      "git-flex",
     ]);
   });
 });

@@ -17,7 +17,7 @@ const sampleProjectEntry: ProjectEntry = {
   name: "Sample Project",
   faviconHref: "https://assets.example.com/favicon.ico",
   summary: "Sample project summary",
-  year: 2026,
+  date: "2026-05-06",
   stack: ["React"],
   status: "active",
   access: {
