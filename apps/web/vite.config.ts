@@ -35,9 +35,6 @@ const stripEmptySourcemaps = (): Plugin => ({
 });
 
 const config = defineConfig({
-  server: {
-    port: 3000,
-  },
   plugins: [
     stripEmptySourcemaps(),
     devtools({
