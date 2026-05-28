@@ -33,6 +33,7 @@ const ShikiHighlighterLazy = lazy(() =>
         return (
           <mod.default
             className="shiki-code min-w-full text-[13px] leading-6 [&_pre]:m-0 [&>pre]:rounded-none!"
+            defaultColor={false}
             highlighter={highlighter}
             language={language}
             showLanguage={false}
