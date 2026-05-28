@@ -99,6 +99,16 @@ status: archived
         },
       },
       {
+        path: "/about",
+        prerender: {
+          enabled: true,
+        },
+        sitemap: {
+          changefreq: "yearly",
+          priority: 0.5,
+        },
+      },
+      {
         path: "/blogs/hello-world",
         prerender: {
           enabled: true,
@@ -209,6 +219,16 @@ tags:
         sitemap: {
           changefreq: "weekly",
           priority: 1,
+        },
+      },
+      {
+        path: "/about",
+        prerender: {
+          enabled: true,
+        },
+        sitemap: {
+          changefreq: "yearly",
+          priority: 0.5,
         },
       },
     ])

@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as LinkedinRouteImport } from './routes/linkedin'
 import { Route as GithubRouteImport } from './routes/github'
+import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProjectsSlugRouteImport } from './routes/projects/$slug'
 import { Route as BlogsSlugRouteImport } from './routes/blogs/$slug'
@@ -23,6 +24,11 @@ const LinkedinRoute = LinkedinRouteImport.update({
 const GithubRoute = GithubRouteImport.update({
   id: '/github',
   path: '/github',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -43,6 +49,7 @@ const BlogsSlugRoute = BlogsSlugRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/github': typeof GithubRoute
   '/linkedin': typeof LinkedinRoute
   '/blogs/$slug': typeof BlogsSlugRoute
@@ -50,6 +57,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/github': typeof GithubRoute
   '/linkedin': typeof LinkedinRoute
   '/blogs/$slug': typeof BlogsSlugRoute
@@ -58,6 +66,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/github': typeof GithubRoute
   '/linkedin': typeof LinkedinRoute
   '/blogs/$slug': typeof BlogsSlugRoute
@@ -65,12 +74,25 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/github' | '/linkedin' | '/blogs/$slug' | '/projects/$slug'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/github'
+    | '/linkedin'
+    | '/blogs/$slug'
+    | '/projects/$slug'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/github' | '/linkedin' | '/blogs/$slug' | '/projects/$slug'
+  to:
+    | '/'
+    | '/about'
+    | '/github'
+    | '/linkedin'
+    | '/blogs/$slug'
+    | '/projects/$slug'
   id:
     | '__root__'
     | '/'
+    | '/about'
     | '/github'
     | '/linkedin'
     | '/blogs/$slug'
@@ -79,6 +101,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AboutRoute: typeof AboutRoute
   GithubRoute: typeof GithubRoute
   LinkedinRoute: typeof LinkedinRoute
   BlogsSlugRoute: typeof BlogsSlugRoute
@@ -99,6 +122,13 @@ declare module '@tanstack/react-router' {
       path: '/github'
       fullPath: '/github'
       preLoaderRoute: typeof GithubRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -127,6 +157,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AboutRoute: AboutRoute,
   GithubRoute: GithubRoute,
   LinkedinRoute: LinkedinRoute,
   BlogsSlugRoute: BlogsSlugRoute,

@@ -166,6 +166,16 @@ export function getSitemapPages(
         priority: 1,
       },
     },
+    {
+      path: "/about",
+      prerender: {
+        enabled: true,
+      },
+      sitemap: {
+        changefreq: "yearly",
+        priority: 0.5,
+      },
+    },
     ...getBlogPages(blogsDirectory),
     ...getProjectPages(projectsDirectory),
   ]

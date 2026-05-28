@@ -73,7 +73,6 @@ export function HomePage({ blogs, projects }: HomePageProps) {
   const hasBlogs = blogs.length > 0
   const hasProjects = projects.length > 0
   const showEmptyState = !hasBlogs && !hasProjects
-  const showSectionNavigation = hasBlogs || hasProjects
   const showTwoColumnLayout = hasBlogs && hasProjects
 
   return (
@@ -89,23 +88,21 @@ export function HomePage({ blogs, projects }: HomePageProps) {
               to the codebase.
             </p>
           </div>
-          {showSectionNavigation ? (
-            <nav
-              aria-label="Section navigation"
-              className="flex flex-wrap gap-4"
-            >
-              {hasBlogs ? (
-                <Link className={sectionLinkClassName} to="/" hash="blogs">
-                  Blogs
-                </Link>
-              ) : null}
-              {hasProjects ? (
-                <Link className={sectionLinkClassName} to="/" hash="projects">
-                  Projects
-                </Link>
-              ) : null}
-            </nav>
-          ) : null}
+          <nav aria-label="Primary navigation" className="flex flex-wrap gap-4">
+            {hasBlogs ? (
+              <Link className={sectionLinkClassName} to="/" hash="blogs">
+                Blogs
+              </Link>
+            ) : null}
+            {hasProjects ? (
+              <Link className={sectionLinkClassName} to="/" hash="projects">
+                Projects
+              </Link>
+            ) : null}
+            <Link className={sectionLinkClassName} to="/about">
+              About
+            </Link>
+          </nav>
         </div>
       </header>
 
