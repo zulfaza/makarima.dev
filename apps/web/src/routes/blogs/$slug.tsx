@@ -1,3 +1,4 @@
+import { ExternalLink } from "lucide-react"
 import { lazy, Suspense } from "react"
 import { createFileRoute, Link, notFound } from "@tanstack/react-router"
 
@@ -7,6 +8,7 @@ import {
   siteMetaClassName,
 } from "@/components/site-frame"
 import { Badge } from "@/components/ui/badge"
+import { buttonVariants } from "@/components/ui/button"
 import { findBlogBySlug, formatBlogDate } from "@/content/site"
 import { createBlogPostingJsonLd, createPageHead } from "@/lib/site-metadata"
 
@@ -60,36 +62,53 @@ function BlogRouteComponent() {
 export function BlogDetailPage({ entry }: { entry: BlogEntry }) {
   return (
     <SiteFrame>
-      <header className="border-b border-border/80 px-5 py-5 sm:px-8">
-        <div className="space-y-3">
+      <header className="border-b border-border/80">
+        <div className="border-b border-border/80 px-5 py-4 sm:px-8">
           <Link
             className="text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none"
             to="/"
           >
             Back to home
           </Link>
-          <div className="space-y-2">
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-              <h1 className="text-2xl leading-tight font-medium text-foreground sm:text-3xl">
-                {entry.title}
-              </h1>
-              <span className={siteMetaClassName}>
-                {formatBlogDate(entry.publishedAt)}
-              </span>
+        </div>
+        <div className="grid gap-5 px-5 py-5 sm:px-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start">
+          <div className="space-y-3">
+            <div className="space-y-2">
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                <h1 className="text-2xl leading-tight font-medium text-foreground sm:text-3xl">
+                  {entry.title}
+                </h1>
+                <span className={siteMetaClassName}>
+                  {formatBlogDate(entry.publishedAt)}
+                </span>
+              </div>
+              <p className="max-w-3xl text-sm leading-7 text-muted-foreground">
+                {entry.summary}
+              </p>
             </div>
-            <p className="max-w-3xl text-sm leading-7 text-muted-foreground">
-              {entry.summary}
-            </p>
+            <ul aria-label={`${entry.title} tags`} className="flex flex-wrap gap-2">
+              {entry.tags.map((tag) => (
+                <li key={tag}>
+                  <Badge variant="outline" className={siteBadgeClassName}>
+                    {tag}
+                  </Badge>
+                </li>
+              ))}
+            </ul>
           </div>
-          <ul aria-label={`${entry.title} tags`} className="flex flex-wrap gap-2">
-            {entry.tags.map((tag) => (
-              <li key={tag}>
-                <Badge variant="outline" className={siteBadgeClassName}>
-                  {tag}
-                </Badge>
-              </li>
-            ))}
-          </ul>
+          {entry.projectUrl ? (
+            <div className="flex flex-wrap items-center gap-2 lg:justify-end">
+              <a
+                className={buttonVariants({ size: "sm", variant: "outline" })}
+                href={entry.projectUrl}
+                rel="noreferrer"
+                target="_blank"
+              >
+                View project
+                <ExternalLink />
+              </a>
+            </div>
+          ) : null}
         </div>
       </header>
 

@@ -194,11 +194,15 @@ function parseBlogFrontmatter(source: string, context: string): ParsedBlogFrontm
     fail(context, "Expected frontmatter object");
   }
 
+  const projectUrl = readOptionalStringField(data, "projectUrl", context);
+
   return {
     title: readStringField(data, "title", context),
     summary: readStringField(data, "summary", context),
     publishedAt: readPublishedAt(data, context),
     tags: readStringArrayField(data, "tags", context),
+    projectUrl:
+      projectUrl !== undefined ? parseHttpUrl(projectUrl, "projectUrl", context) : undefined,
   };
 }
 

@@ -5,6 +5,7 @@ publishedAt: "2026-05-06"
 tags:
   - TypeScript
   - Bun
+projectUrl: "https://github.com/zulfaza/recomendation-system"
 ---
 
 This project started as a practical checkout problem: suggest products a customer may want before payment, while keeping the first version simple enough to inspect and measure. The service uses historical order lines, product catalog data, branch availability, customer history, and current cart contents to return ranked product cards for a checkout flow.

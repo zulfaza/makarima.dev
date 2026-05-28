@@ -12,6 +12,7 @@ export type BlogEntry = {
   readonly summary: string;
   readonly publishedAt: string;
   readonly tags: ReadonlyArray<string>;
+  readonly projectUrl?: string;
   readonly body: ReadonlyArray<ContentBlock>;
 };
 
