@@ -1,16 +1,12 @@
 ---
-name: AI Meeting Notes POC
+title: AI Meeting Notes POC
 summary: A Python CLI POC that turns meeting recordings into speaker-attributed notes and action items.
-date: "2026-05-06"
-stack:
+publishedAt: "2026-05-06"
+tags:
   - Python
   - OpenAI API
   - pyannote
   - ffmpeg
-status: active
-accessHref: https://github.com/zulfaza/ai-meeting-notes-poc-py
-accessLabel: View source
-faviconHref: /images/ai-meeting-notes-poc-py/favicon.svg
 ---
 
 This project explores a narrow but useful workflow: start with a recorded meeting video and end with notes that are easier to scan than the raw conversation. The CLI extracts audio, runs transcription, identifies speaker turns, and writes a summary plus intermediate artifacts to an output folder.

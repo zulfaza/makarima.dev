@@ -83,9 +83,9 @@ describe("HomePage", () => {
     expect(
       within(projectRow).getByTestId("project-favicon").getAttribute("src")
     ).toBe(firstProject.faviconHref)
-    expect(screen.getAllByText("Active")).toHaveLength(3)
-    expect(screen.queryByRole("heading", { name: "Blogs" })).toBeNull()
-    expect(blogs).toEqual([])
+    expect(screen.getAllByText("Active")).toHaveLength(1)
+    expect(screen.getByRole("heading", { name: "Blogs" })).toBeTruthy()
+    expect(blogs.length).toBeGreaterThan(0)
 
     expect(screen.getByRole("button", { name: "Play" })).toBeTruthy()
     expect(screen.queryByText("Pixel snake")).toBeNull()

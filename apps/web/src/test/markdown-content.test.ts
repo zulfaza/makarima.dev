@@ -444,10 +444,11 @@ const value = true
   });
 
   test("loads deterministic project order from markdown", () => {
-    expect(loadBlogs()).toEqual([]);
-    expect(loadProjects().map((entry) => entry.slug)).toEqual([
+    expect(loadBlogs().map((entry) => entry.slug)).toEqual([
       "ai-meeting-notes-poc-py",
       "recommendation-system",
+    ]);
+    expect(loadProjects().map((entry) => entry.slug)).toEqual([
       "jwt-debugger",
       "git-flex",
     ]);

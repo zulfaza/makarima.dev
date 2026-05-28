@@ -1,14 +1,10 @@
 ---
-name: Recommendation System
+title: Recommendation System
 summary: A TypeScript checkout recommendation service that ranks explainable "you might also want" products from order history and catalog data.
-date: "2026-05-06"
-stack:
+publishedAt: "2026-05-06"
+tags:
   - TypeScript
   - Bun
-status: active
-accessHref: https://github.com/zulfaza/recomendation-system
-accessLabel: View source
-faviconHref: /images/recommendation-system/favicon.svg
 ---
 
 This project started as a practical checkout problem: suggest products a customer may want before payment, while keeping the first version simple enough to inspect and measure. The service uses historical order lines, product catalog data, branch availability, customer history, and current cart contents to return ranked product cards for a checkout flow.
