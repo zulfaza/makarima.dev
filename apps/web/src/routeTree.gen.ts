@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as LinksRouteImport } from './routes/links'
 import { Route as LinkedinRouteImport } from './routes/linkedin'
 import { Route as GithubRouteImport } from './routes/github'
 import { Route as AboutRouteImport } from './routes/about'
@@ -16,6 +17,11 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProjectsSlugRouteImport } from './routes/projects/$slug'
 import { Route as BlogsSlugRouteImport } from './routes/blogs/$slug'
 
+const LinksRoute = LinksRouteImport.update({
+  id: '/links',
+  path: '/links',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LinkedinRoute = LinkedinRouteImport.update({
   id: '/linkedin',
   path: '/linkedin',
@@ -52,6 +58,7 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/github': typeof GithubRoute
   '/linkedin': typeof LinkedinRoute
+  '/links': typeof LinksRoute
   '/blogs/$slug': typeof BlogsSlugRoute
   '/projects/$slug': typeof ProjectsSlugRoute
 }
@@ -60,6 +67,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/github': typeof GithubRoute
   '/linkedin': typeof LinkedinRoute
+  '/links': typeof LinksRoute
   '/blogs/$slug': typeof BlogsSlugRoute
   '/projects/$slug': typeof ProjectsSlugRoute
 }
@@ -69,6 +77,7 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/github': typeof GithubRoute
   '/linkedin': typeof LinkedinRoute
+  '/links': typeof LinksRoute
   '/blogs/$slug': typeof BlogsSlugRoute
   '/projects/$slug': typeof ProjectsSlugRoute
 }
@@ -79,6 +88,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/github'
     | '/linkedin'
+    | '/links'
     | '/blogs/$slug'
     | '/projects/$slug'
   fileRoutesByTo: FileRoutesByTo
@@ -87,6 +97,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/github'
     | '/linkedin'
+    | '/links'
     | '/blogs/$slug'
     | '/projects/$slug'
   id:
@@ -95,6 +106,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/github'
     | '/linkedin'
+    | '/links'
     | '/blogs/$slug'
     | '/projects/$slug'
   fileRoutesById: FileRoutesById
@@ -104,12 +116,20 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   GithubRoute: typeof GithubRoute
   LinkedinRoute: typeof LinkedinRoute
+  LinksRoute: typeof LinksRoute
   BlogsSlugRoute: typeof BlogsSlugRoute
   ProjectsSlugRoute: typeof ProjectsSlugRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/links': {
+      id: '/links'
+      path: '/links'
+      fullPath: '/links'
+      preLoaderRoute: typeof LinksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/linkedin': {
       id: '/linkedin'
       path: '/linkedin'
@@ -160,6 +180,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   GithubRoute: GithubRoute,
   LinkedinRoute: LinkedinRoute,
+  LinksRoute: LinksRoute,
   BlogsSlugRoute: BlogsSlugRoute,
   ProjectsSlugRoute: ProjectsSlugRoute,
 }

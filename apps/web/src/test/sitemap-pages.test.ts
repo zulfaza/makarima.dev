@@ -109,6 +109,16 @@ status: archived
         },
       },
       {
+        path: "/links",
+        prerender: {
+          enabled: true,
+        },
+        sitemap: {
+          changefreq: "yearly",
+          priority: 0.6,
+        },
+      },
+      {
         path: "/blogs/hello-world",
         prerender: {
           enabled: true,
@@ -199,7 +209,9 @@ tags:
         blogsDirectory,
         projectsDirectory,
       })
-    ).toThrowError('[sitemap:blogs/broken-yaml.md] Expected "publishedAt" to be a non-empty string')
+    ).toThrowError(
+      '[sitemap:blogs/broken-yaml.md] Expected "publishedAt" to be a non-empty string'
+    )
   })
 
   it("returns the prerendered root page when content collections are empty", () => {
@@ -229,6 +241,16 @@ tags:
         sitemap: {
           changefreq: "yearly",
           priority: 0.5,
+        },
+      },
+      {
+        path: "/links",
+        prerender: {
+          enabled: true,
+        },
+        sitemap: {
+          changefreq: "yearly",
+          priority: 0.6,
         },
       },
     ])

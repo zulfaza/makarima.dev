@@ -2,7 +2,6 @@ import { readdirSync, readFileSync } from "node:fs"
 import { fileURLToPath } from "node:url"
 
 import { parseFrontmatter } from "../content/frontmatter"
-
 import { siteMetadata } from "./site-metadata"
 
 type SitemapChangeFrequency =
@@ -151,7 +150,8 @@ export const sitemapHost = siteMetadata.origin
 export function getSitemapPages(
   options: SitemapPageOptions = {}
 ): Array<SitemapPage> {
-  const blogsDirectory = options.blogsDirectory ?? getCollectionDirectory("blogs")
+  const blogsDirectory =
+    options.blogsDirectory ?? getCollectionDirectory("blogs")
   const projectsDirectory =
     options.projectsDirectory ?? getCollectionDirectory("projects")
 
@@ -174,6 +174,16 @@ export function getSitemapPages(
       sitemap: {
         changefreq: "yearly",
         priority: 0.5,
+      },
+    },
+    {
+      path: "/links",
+      prerender: {
+        enabled: true,
+      },
+      sitemap: {
+        changefreq: "yearly",
+        priority: 0.6,
       },
     },
     ...getBlogPages(blogsDirectory),

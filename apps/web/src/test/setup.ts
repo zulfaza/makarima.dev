@@ -5,6 +5,7 @@ import { darkModeMediaQuery } from "@/lib/theme"
 
 let systemPrefersDark = false
 let clipboardText = ""
+const storageBacking = new Map<string, string>()
 const mediaQueryListeners = new Set<EventListenerOrEventListenerObject>()
 type LegacyMediaQueryListener = (
   this: MediaQueryList,
@@ -114,6 +115,32 @@ export function getClipboardText() {
 }
 
 window.matchMedia = (query: string) => createMediaQueryList(query)
+
+const fallbackLocalStorage: Storage = {
+  get length() {
+    return storageBacking.size
+  },
+  clear() {
+    storageBacking.clear()
+  },
+  getItem(key: string) {
+    return storageBacking.get(key) ?? null
+  },
+  key(index: number) {
+    return Array.from(storageBacking.keys()).at(index) ?? null
+  },
+  removeItem(key: string) {
+    storageBacking.delete(key)
+  },
+  setItem(key: string, value: string) {
+    storageBacking.set(key, value)
+  },
+}
+
+Object.defineProperty(window, "localStorage", {
+  configurable: true,
+  value: fallbackLocalStorage,
+})
 
 Object.defineProperty(window.navigator, "clipboard", {
   configurable: true,
