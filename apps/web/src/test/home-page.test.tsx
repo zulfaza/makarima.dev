@@ -61,7 +61,10 @@ describe("HomePage", () => {
 
     expect(screen.getByRole("heading", { name: "Projects" })).toBeTruthy()
 
-    const pageTitle = screen.getByRole("heading", { level: 1, name: "makarima.dev" })
+    const pageTitle = screen.getByRole("heading", {
+      level: 1,
+      name: "Zul Faza Makarima",
+    })
 
     expect(pageTitle).toBeTruthy()
     expect(

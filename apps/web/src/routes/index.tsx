@@ -81,7 +81,7 @@ export function HomePage({ blogs, projects }: HomePageProps) {
         <div className="grid gap-6 px-5 py-5 sm:px-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
           <div className="space-y-3">
             <h1 className="max-w-2xl text-2xl leading-tight font-medium text-foreground sm:text-3xl">
-              makarima.dev
+              Zul Faza Makarima
             </h1>
             <p className="max-w-2xl text-sm leading-7 text-muted-foreground">
               Notes, projects, and experiments by Zul Faza Makarima, kept close
